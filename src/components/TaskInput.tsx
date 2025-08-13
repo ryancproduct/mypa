@@ -69,7 +69,7 @@ export const TaskInput: React.FC<TaskInputProps> = ({
       assignee: detectedAssignee || undefined,
       dueDate: dueDate || undefined,
       priority: finalPriority || undefined,
-    });
+    }, sectionType);
 
     // Reset form
     setContent('');

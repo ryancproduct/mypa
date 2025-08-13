@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useTaskStore } from '../stores/useTaskStore';
-import { getCurrentDateAustralian, getDayName } from '../utils/dateUtils';
+import { getDayName } from '../utils/dateUtils';
 import { TaskItem } from '../components/TaskItem';
 import { TaskInput } from '../components/TaskInput';
 import { ProjectFilter } from '../components/ProjectFilter';
+import { Task } from '../types';
 
 const Dashboard: React.FC = () => {
   const { currentDate, getCurrentSection, projects } = useTaskStore();
@@ -24,7 +25,7 @@ const Dashboard: React.FC = () => {
   const handleClearAll = () => setSelectedProjects([]);
   const handleSelectAll = () => setSelectedProjects(projects.map(p => p.tag));
 
-  const filterTasks = (tasks: any[]) => {
+  const filterTasks = (tasks: Task[]) => {
     if (selectedProjects.length === 0) return tasks;
     return tasks.filter(task => 
       !task.project || selectedProjects.includes(task.project)

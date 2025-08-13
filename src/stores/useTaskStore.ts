@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { AppState, Task, DailySection, Project } from '../types';
+import { getCurrentDateAustralian } from '../utils/dateUtils';
 
 interface TaskStore extends AppState {
-  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>, sectionType?: 'priorities' | 'schedule' | 'followUps') => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   completeTask: (id: string) => void;
@@ -13,7 +14,7 @@ interface TaskStore extends AppState {
 }
 
 export const useTaskStore = create<TaskStore>((set, get) => ({
-  currentDate: new Date().toISOString().split('T')[0],
+  currentDate: getCurrentDateAustralian(),
   sections: [],
   projects: [
     { id: '1', name: 'Data Tables', tag: '#DataTables' },
@@ -26,7 +27,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   loading: false,
   error: null,
 
-  addTask: (taskData) => {
+  addTask: (taskData, sectionType = 'schedule') => {
     const task: Task = {
       ...taskData,
       id: crypto.randomUUID(),
@@ -52,9 +53,11 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         sections.push(currentSection);
       }
 
-      // Add to appropriate section based on priority or default to schedule
-      if (task.priority) {
+      // Add to specified section type, unless it has priority and goes to priorities
+      if (sectionType === 'priorities' || (task.priority && sectionType !== 'followUps')) {
         currentSection.priorities.push(task);
+      } else if (sectionType === 'followUps') {
+        currentSection.followUps.push(task);
       } else {
         currentSection.schedule.push(task);
       }
