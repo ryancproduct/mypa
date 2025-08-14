@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import type { AppState, Task, DailySection, Project } from '../types';
 import { getCurrentDateAustralian } from '../utils/dateUtils';
+import { supabase } from '../lib/supabaseClient';
 
 interface TaskStore extends AppState {
+  fetchAndSetStateForDate: (date: string) => Promise<void>;
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>, sectionType?: 'priorities' | 'schedule' | 'followUps') => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
@@ -10,174 +12,221 @@ interface TaskStore extends AppState {
   rolloverTasks: (fromDate: string, toDate: string) => void;
   setCurrentDate: (date: string) => void;
   addProject: (project: Omit<Project, 'id'>) => void;
-  getCurrentSection: () => DailySection;
+  getCurrentSection: () => DailySection | undefined;
 }
 
 export const useTaskStore = create<TaskStore>((set, get) => ({
-  ...(() => {
-    const today = getCurrentDateAustralian();
-    const initialState: AppState = {
-      currentDate: today,
-      sections: [
-        {
-          id: crypto.randomUUID(),
-          date: today,
-          priorities: [],
-          schedule: [],
-          followUps: [],
-          notes: [],
-          completed: [],
-          blockers: [],
-        },
-      ],
-      projects: [
-        { id: '1', name: 'Data Tables', tag: '#DataTables' },
-        { id: '2', name: 'Lone Worker', tag: '#LoneWorker' },
-        { id: '3', name: 'IKEA', tag: '#IKEA' },
-        { id: '4', name: 'Cross Org', tag: '#CrossOrg' },
-        { id: '5', name: 'Recurring', tag: '#Recurring' },
-        { id: '6', name: 'Capture', tag: '#CAPTURE' },
-      ],
-      loading: false,
-      error: null,
-    };
-    return initialState;
-  })(),
+  currentDate: getCurrentDateAustralian(),
+  sections: [],
+  projects: [],
+  loading: true,
+  error: null,
 
-  addTask: (taskData, sectionType = 'schedule') => {
-    const task: Task = {
-      ...taskData,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+  fetchAndSetStateForDate: async (date) => {
+    set({ loading: true, error: null });
+    try {
+      // 1. Fetch projects
+      const { data: projects, error: projectsError } = await supabase.from('projects').select('*');
+      if (projectsError) throw projectsError;
 
-    set((state) => {
-      const sections = [...state.sections];
-      let currentSection = sections.find(s => s.date === state.currentDate);
-      
-      if (!currentSection) {
-        currentSection = {
-          id: crypto.randomUUID(),
-          date: state.currentDate,
-          priorities: [],
-          schedule: [],
-          followUps: [],
-          notes: [],
-          completed: [],
-          blockers: [],
-        };
-        sections.push(currentSection);
+      // 2. Find or create the daily section
+      let { data: section, error: sectionError } = await supabase.from('daily_sections').select('*').eq('date', date).single();
+      if (sectionError && sectionError.code !== 'PGRST116') { // PGRST116: 'exact-one-row-not-found'
+        throw sectionError;
+      }
+      if (!section) {
+        const { data: newSection, error: newSectionError } = await supabase.from('daily_sections').insert({ date }).select().single();
+        if (newSectionError) throw newSectionError;
+        section = newSection;
       }
 
-      // Add to specified section type, unless it has priority and goes to priorities
-      if (sectionType === 'priorities' || (task.priority && sectionType !== 'followUps')) {
-        currentSection.priorities.push(task);
-      } else if (sectionType === 'followUps') {
-        currentSection.followUps.push(task);
-      } else {
-        currentSection.schedule.push(task);
-      }
+      // 3. Fetch tasks for the section
+      const { data: tasks, error: tasksError } = await supabase.from('tasks').select('*').eq('daily_section_id', section.id);
+      if (tasksError) throw tasksError;
 
-      return { sections };
-    });
-  },
+      // 4. Organize tasks and update state
+      const dailySection: DailySection = {
+        id: section.id,
+        date: section.date,
+        priorities: tasks.filter(t => t.task_type === 'priority'),
+        schedule: tasks.filter(t => t.task_type === 'schedule'),
+        followUps: tasks.filter(t => t.task_type === 'followUp'),
+        notes: [], // Assuming notes are not yet in db
+        completed: [], // Assuming completed are handled differently or not fetched here
+        blockers: [], // Assuming blockers are not yet in db
+      };
 
-  updateTask: (id, updates) => {
-    set((state) => ({
-      sections: state.sections.map(section => ({
-        ...section,
-        priorities: section.priorities.map(task => 
-          task.id === id ? { ...task, ...updates, updatedAt: new Date().toISOString() } : task
-        ),
-        schedule: section.schedule.map(task => 
-          task.id === id ? { ...task, ...updates, updatedAt: new Date().toISOString() } : task
-        ),
-        followUps: section.followUps.map(task => 
-          task.id === id ? { ...task, ...updates, updatedAt: new Date().toISOString() } : task
-        ),
-      })),
-    }));
-  },
-
-  deleteTask: (id) => {
-    set((state) => ({
-      sections: state.sections.map(section => ({
-        ...section,
-        priorities: section.priorities.filter(task => task.id !== id),
-        schedule: section.schedule.filter(task => task.id !== id),
-        followUps: section.followUps.filter(task => task.id !== id),
-      })),
-    }));
-  },
-
-  completeTask: (id) => {
-    const completedAt = new Date().toISOString();
-    
-    set((state) => {
-      const sections = [...state.sections];
-      
-      sections.forEach(section => {
-        ['priorities', 'schedule', 'followUps'].forEach(listName => {
-          const list = section[listName as keyof DailySection] as Task[];
-          const taskIndex = list.findIndex(task => task.id === id);
-          
-          if (taskIndex !== -1) {
-            const completedTask = {
-              ...list[taskIndex],
-              status: 'completed' as const,
-              completedAt,
-              updatedAt: completedAt,
-            };
-            
-            list.splice(taskIndex, 1);
-            section.completed.push(completedTask);
-          }
-        });
-      });
-      
-      return { sections };
-    });
-  },
-
-  rolloverTasks: (fromDate, toDate) => {
-    // Implementation for daily rollover logic
-    console.log(`Rolling over tasks from ${fromDate} to ${toDate}`);
+      set({ projects: projects || [], sections: [dailySection], loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      console.error("Error fetching data:", error);
+    }
   },
 
   setCurrentDate: (date) => {
     set({ currentDate: date });
-  },
-
-  addProject: (projectData) => {
-    const project: Project = {
-      ...projectData,
-      id: crypto.randomUUID(),
-    };
-    
-    set((state) => ({
-      projects: [...state.projects, project],
-    }));
+    get().fetchAndSetStateForDate(date);
   },
 
   getCurrentSection: () => {
     const { sections, currentDate } = get();
-    let currentSection = sections.find(s => s.date === currentDate);
+    return sections.find(s => s.date === currentDate);
+  },
+
+  addTask: async (taskData, sectionType = 'schedule') => {
+    const { getCurrentSection } = get();
+    const currentSection = getCurrentSection();
 
     if (!currentSection) {
-      currentSection = {
-        id: crypto.randomUUID(),
-        date: currentDate,
-        priorities: [],
-        schedule: [],
-        followUps: [],
-        notes: [],
-        completed: [],
-        blockers: [],
-      };
-      set(state => ({ sections: [...state.sections, currentSection!] }));
+      console.error("Cannot add task: No current section found.");
+      return;
     }
 
-    return currentSection;
+    const newTaskPayload = {
+      ...taskData,
+      daily_section_id: currentSection.id,
+      task_type: sectionType,
+      project_id: taskData.project || null,
+    };
+    delete (newTaskPayload as any).project;
+
+    const { data: newTask, error } = await supabase
+      .from('tasks')
+      .insert(newTaskPayload)
+      .select()
+      .single();
+
+    if (error) {
+      set({ error: error.message });
+      console.error("Error adding task:", error);
+      return;
+    }
+
+    if (newTask) {
+      set(state => {
+        const sections = state.sections.map(section => {
+          if (section.id === currentSection.id) {
+            const updatedSection = { ...section };
+            switch (newTask.task_type) {
+              case 'priority':
+                updatedSection.priorities = [...updatedSection.priorities, newTask as Task];
+                break;
+              case 'schedule':
+                updatedSection.schedule = [...updatedSection.schedule, newTask as Task];
+                break;
+              case 'followUp':
+                updatedSection.followUps = [...updatedSection.followUps, newTask as Task];
+                break;
+            }
+            return updatedSection;
+          }
+          return section;
+        });
+        return { sections };
+      });
+    }
   },
+  updateTask: async (id, updates) => {
+    const { data: updatedTask, error } = await supabase
+      .from('tasks')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      set({ error: error.message });
+      console.error("Error updating task:", error);
+      return;
+    }
+
+    if (updatedTask) {
+      set(state => {
+        const sections = state.sections.map(section => {
+          const updateList = (list: Task[]) => 
+            list.map(task => (task.id === id ? { ...task, ...updatedTask } : task));
+
+          return {
+            ...section,
+            priorities: updateList(section.priorities),
+            schedule: updateList(section.schedule),
+            followUps: updateList(section.followUps),
+          };
+        });
+        return { sections };
+      });
+    }
+  },
+  deleteTask: async (id) => {
+    const { error } = await supabase.from('tasks').delete().eq('id', id);
+
+    if (error) {
+      set({ error: error.message });
+      console.error("Error deleting task:", error);
+    } else {
+      set(state => {
+        const sections = state.sections.map(section => ({
+          ...section,
+          priorities: section.priorities.filter(task => task.id !== id),
+          schedule: section.schedule.filter(task => task.id !== id),
+          followUps: section.followUps.filter(task => task.id !== id),
+        }));
+        return { sections };
+      });
+    }
+  },
+  completeTask: async (id) => {
+    const completedAt = new Date().toISOString();
+    const { data: completedTask, error } = await supabase
+      .from('tasks')
+      .update({ status: 'completed', completed_at: completedAt })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      set({ error: error.message });
+      console.error("Error completing task:", error);
+      return;
+    }
+
+    if (completedTask) {
+      set(state => {
+        const sections = [...state.sections];
+        sections.forEach(section => {
+          let taskFound = false;
+          ['priorities', 'schedule', 'followUps'].forEach(listName => {
+            if (taskFound) return;
+            const list = section[listName as keyof DailySection] as Task[];
+            const taskIndex = list.findIndex(task => task.id === id);
+
+            if (taskIndex > -1) {
+              list.splice(taskIndex, 1);
+              section.completed.push(completedTask as Task);
+              taskFound = true;
+            }
+          });
+        });
+        return { sections };
+      });
+    }
+  },
+  addProject: async (projectData) => {
+    const { data: newProject, error } = await supabase
+      .from('projects')
+      .insert(projectData)
+      .select()
+      .single();
+
+    if (error) {
+      set({ error: error.message });
+      console.error("Error adding project:", error);
+    } else if (newProject) {
+      set(state => ({ projects: [...state.projects, newProject] }));
+    }
+  },
+  rolloverTasks: () => console.log('rolloverTasks not implemented for Supabase yet'),
 }));
+
+// Initial fetch
+useTaskStore.getState().fetchAndSetStateForDate(useTaskStore.getState().currentDate);

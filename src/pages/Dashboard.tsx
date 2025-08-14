@@ -7,7 +7,7 @@ import { ProjectFilter } from '../components/ProjectFilter';
 import type { Task } from '../types';
 
 const Dashboard: React.FC = () => {
-  const { currentDate, getCurrentSection, projects } = useTaskStore();
+  const { currentDate, getCurrentSection, projects, loading, error } = useTaskStore();
   const currentSection = getCurrentSection();
   const dayName = getDayName(currentDate);
   
@@ -31,6 +31,18 @@ const Dashboard: React.FC = () => {
       !task.project || selectedProjects.includes(task.project)
     );
   };
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="flex justify-center items-center h-screen">Error: {error}</div>;
+  }
+
+  if (!currentSection) {
+    return <div className="flex justify-center items-center h-screen">No data for today.</div>;
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6">
