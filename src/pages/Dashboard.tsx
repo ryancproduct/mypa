@@ -4,7 +4,7 @@ import { getDayName } from '../utils/dateUtils';
 import { TaskItem } from '../components/TaskItem';
 import { TaskInput } from '../components/TaskInput';
 import { ProjectFilter } from '../components/ProjectFilter';
-import { Task } from '../types';
+import type { Task } from '../types';
 
 const Dashboard: React.FC = () => {
   const { currentDate, getCurrentSection, projects } = useTaskStore();

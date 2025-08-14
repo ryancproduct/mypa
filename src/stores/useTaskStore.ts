@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { AppState, Task, DailySection, Project } from '../types';
+import type { AppState, Task, DailySection, Project } from '../types';
 import { getCurrentDateAustralian } from '../utils/dateUtils';
 
 interface TaskStore extends AppState {
@@ -10,22 +10,39 @@ interface TaskStore extends AppState {
   rolloverTasks: (fromDate: string, toDate: string) => void;
   setCurrentDate: (date: string) => void;
   addProject: (project: Omit<Project, 'id'>) => void;
-  getCurrentSection: () => DailySection | undefined;
+  getCurrentSection: () => DailySection;
 }
 
 export const useTaskStore = create<TaskStore>((set, get) => ({
-  currentDate: getCurrentDateAustralian(),
-  sections: [],
-  projects: [
-    { id: '1', name: 'Data Tables', tag: '#DataTables' },
-    { id: '2', name: 'Lone Worker', tag: '#LoneWorker' },
-    { id: '3', name: 'IKEA', tag: '#IKEA' },
-    { id: '4', name: 'Cross Org', tag: '#CrossOrg' },
-    { id: '5', name: 'Recurring', tag: '#Recurring' },
-    { id: '6', name: 'Capture', tag: '#CAPTURE' },
-  ],
-  loading: false,
-  error: null,
+  ...(() => {
+    const today = getCurrentDateAustralian();
+    const initialState: AppState = {
+      currentDate: today,
+      sections: [
+        {
+          id: crypto.randomUUID(),
+          date: today,
+          priorities: [],
+          schedule: [],
+          followUps: [],
+          notes: [],
+          completed: [],
+          blockers: [],
+        },
+      ],
+      projects: [
+        { id: '1', name: 'Data Tables', tag: '#DataTables' },
+        { id: '2', name: 'Lone Worker', tag: '#LoneWorker' },
+        { id: '3', name: 'IKEA', tag: '#IKEA' },
+        { id: '4', name: 'Cross Org', tag: '#CrossOrg' },
+        { id: '5', name: 'Recurring', tag: '#Recurring' },
+        { id: '6', name: 'Capture', tag: '#CAPTURE' },
+      ],
+      loading: false,
+      error: null,
+    };
+    return initialState;
+  })(),
 
   addTask: (taskData, sectionType = 'schedule') => {
     const task: Task = {
@@ -144,7 +161,23 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   },
 
   getCurrentSection: () => {
-    const state = get();
-    return state.sections.find(s => s.date === state.currentDate);
+    const { sections, currentDate } = get();
+    let currentSection = sections.find(s => s.date === currentDate);
+
+    if (!currentSection) {
+      currentSection = {
+        id: crypto.randomUUID(),
+        date: currentDate,
+        priorities: [],
+        schedule: [],
+        followUps: [],
+        notes: [],
+        completed: [],
+        blockers: [],
+      };
+      set(state => ({ sections: [...state.sections, currentSection!] }));
+    }
+
+    return currentSection;
   },
 }));
