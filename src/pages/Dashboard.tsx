@@ -4,12 +4,15 @@ import { getDayName } from '../utils/dateUtils';
 import { TaskItem } from '../components/TaskItem';
 import { TaskInput } from '../components/TaskInput';
 import { ProjectFilter } from '../components/ProjectFilter';
+
 import type { Task } from '../types';
 
 const Dashboard: React.FC = () => {
   const { currentDate, getCurrentSection, projects, loading, error } = useTaskStore();
   const currentSection = getCurrentSection();
   const dayName = getDayName(currentDate);
+
+
   
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -56,12 +59,15 @@ const Dashboard: React.FC = () => {
               Local: Australia/Sydney
             </p>
           </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            {showFilters ? 'Hide' : 'Show'} Filters
-          </button>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              {showFilters ? 'Hide' : 'Show'} Filters
+            </button>
+
+          </div>
         </div>
       </header>
 

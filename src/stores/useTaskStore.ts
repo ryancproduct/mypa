@@ -3,15 +3,15 @@ import type { AppState, Task, DailySection, Project } from '../types';
 import { getCurrentDateAustralian } from '../utils/dateUtils';
 import { supabase } from '../lib/supabaseClient';
 
+
 interface TaskStore extends AppState {
   fetchAndSetStateForDate: (date: string) => Promise<void>;
-  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>, sectionType?: 'priorities' | 'schedule' | 'followUps') => void;
-  updateTask: (id: string, updates: Partial<Task>) => void;
-  deleteTask: (id: string) => void;
-  completeTask: (id: string) => void;
-  rolloverTasks: (fromDate: string, toDate: string) => void;
+  addTask: (taskData: Omit<Task, 'id' | 'createdAt' | 'completedAt' | 'daily_section_id'>, sectionType?: 'priorities' | 'schedule' | 'followUps') => Promise<void>;
+  updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
+  completeTask: (id: string) => Promise<void>;
+  addProject: (projectData: Omit<Project, 'id'>) => Promise<void>;
   setCurrentDate: (date: string) => void;
-  addProject: (project: Omit<Project, 'id'>) => void;
   getCurrentSection: () => DailySection | undefined;
 }
 
@@ -22,18 +22,28 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   loading: true,
   error: null,
 
+
+
   fetchAndSetStateForDate: async (date) => {
     set({ loading: true, error: null });
     try {
       // 1. Fetch projects
-      const { data: projects, error: projectsError } = await supabase.from('projects').select('*');
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('projects')
+        .select('*');
       if (projectsError) throw projectsError;
 
       // 2. Find or create the daily section
-      let { data: section, error: sectionError } = await supabase.from('daily_sections').select('*').eq('date', date).single();
+      let { data: section, error: sectionError } = await supabase
+        .from('daily_sections')
+        .select('*, tasks(*)')
+        .eq('date', date)
+        .single();
+
       if (sectionError && sectionError.code !== 'PGRST116') { // PGRST116: 'exact-one-row-not-found'
         throw sectionError;
       }
+
       if (!section) {
         const { data: newSection, error: newSectionError } = await supabase.from('daily_sections').insert({ date }).select().single();
         if (newSectionError) throw newSectionError;
@@ -56,7 +66,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         blockers: [], // Assuming blockers are not yet in db
       };
 
-      set({ projects: projects || [], sections: [dailySection], loading: false });
+      set({ projects: projectsData || [], sections: [dailySection], loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
       console.error("Error fetching data:", error);
