@@ -1,3 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased text-neutral-900 bg-neutral-25;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+  
+  .dark body {
+    @apply text-neutral-100 bg-neutral-950;
+  }
+}
+
+@layer components {
+  /* MyPA Component Styles - "Calm Command Center" */
+  .mypa-card {
+    @apply bg-white dark:bg-neutral-800 rounded-xl shadow-elegant border border-neutral-200/50 dark:border-neutral-700/50;
+    @apply transition-all duration-200 hover:shadow-elegant-lg;
+  }
+  
+  .mypa-button-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white px-4 py-2.5 rounded-lg font-medium;
+    @apply transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+  
+  .mypa-button-secondary {
+    @apply bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-600;
+    @apply text-neutral-700 dark:text-neutral-200 px-4 py-2.5 rounded-lg font-medium;
+    @apply transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2;
+  }
+  
+  .mypa-input {
+    @apply w-full px-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-700;
+    @apply bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100;
+    @apply placeholder-neutral-500 dark:placeholder-neutral-400;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply transition-all duration-200;
+  }
+  
+  .mypa-section-header {
+    @apply text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4;
+    @apply flex items-center justify-between;
+  }
+  
+  .mypa-task-item {
+    @apply flex items-start space-x-3 p-3 rounded-lg;
+    @apply hover:bg-neutral-50 dark:hover:bg-neutral-800/50;
+    @apply transition-all duration-150;
+  }
+  
+  .mypa-priority-indicator {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .mypa-priority-p1 {
+    @apply bg-red-50 text-red-600 dark:bg-red-500/20 dark:text-red-400;
+  }
+  
+  .mypa-priority-p2 {
+    @apply bg-amber-50 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400;
+  }
+  
+  .mypa-priority-p3 {
+    @apply bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400;
+  }
+  
+  .mypa-project-tag {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+    @apply bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300;
+  }
+  
+  .mypa-status-indicator {
+    @apply inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .mypa-status-sync {
+    @apply bg-green-50 text-green-600 dark:bg-green-500/20 dark:text-green-400;
+  }
+  
+  .mypa-status-offline {
+    @apply bg-amber-50 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400;
+  }
+}
+
+/* Subtle animations for MyPA feel */
+@layer utilities {
+  .animate-task-complete {
+    animation: taskComplete 0.5s ease-in-out;
+  }
+  
+  @keyframes taskComplete {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+}

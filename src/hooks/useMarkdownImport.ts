@@ -5,7 +5,7 @@ import { useTaskStore } from '../stores/useTaskStore';
 export const useMarkdownImport = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
-  const { sections } = useTaskStore();
+  const { } = useTaskStore(); // sections removed as unused
 
   const importFromFile = async (file: File) => {
     setIsImporting(true);

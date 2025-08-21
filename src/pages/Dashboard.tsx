@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
-import { useTaskStore } from '../stores/useTaskStore';
+import { useMarkdownStore } from '../stores/useMarkdownStore';
 import { getDayName } from '../utils/dateUtils';
 import { TaskItem } from '../components/TaskItem';
 import { TaskInput } from '../components/TaskInput';
 import { ProjectFilter } from '../components/ProjectFilter';
+import { StatusIndicator } from '../components/StatusIndicator';
+import { FloatingActionButton } from '../components/FloatingActionButton';
+import { ThemeToggle } from '../components/ThemeToggle';
+import { ChatInterface } from '../components/ChatInterface';
+import { AdvancedSearch } from '../components/AdvancedSearch';
+import { FileConnection } from '../components/FileConnection';
+import { useNotifications } from '../hooks/useNotifications';
 
 import type { Task } from '../types';
 
 const Dashboard: React.FC = () => {
-  const { currentDate, getCurrentSection, projects, loading, error } = useTaskStore();
+  const { currentDate, getCurrentSection, projects, loading, error } = useMarkdownStore();
   const currentSection = getCurrentSection();
   const dayName = getDayName(currentDate);
+  
+  // Initialize notifications
+  useNotifications();
 
 
   
@@ -48,25 +58,30 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <header className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
               {currentDate} ({dayName})
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
+              <span className="w-2 h-2 bg-primary-500 rounded-full animate-pulse-subtle"></span>
               Local: Australia/Sydney
             </p>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden sm:block">
+              <StatusIndicator />
+            </div>
+            <AdvancedSearch />
+            <ThemeToggle />
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className={`mypa-button-${showFilters ? 'primary' : 'secondary'} text-sm`}
             >
-              {showFilters ? 'Hide' : 'Show'} Filters
+              <span className="hidden sm:inline">{showFilters ? 'Hide' : 'Show'} </span>Filters
             </button>
-
           </div>
         </div>
       </header>
@@ -81,12 +96,32 @@ const Dashboard: React.FC = () => {
         />
       )}
 
-      <div className="grid gap-6">
+      {/* File Connection */}
+      <FileConnection />
+
+      <div className="grid gap-6 lg:gap-8">
+        {/* Claude AI Assistant */}
+        <section className="mypa-card animate-slide-up p-6">
+          <h2 className="mypa-section-header">
+            <span className="flex items-center gap-2">
+              <span className="text-lg">🤖</span>
+              <span>AI Assistant</span>
+            </span>
+            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-primary-100 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400">
+              Claude
+            </span>
+          </h2>
+          <ChatInterface />
+        </section>
+
         {/* Priorities Section */}
-        <section className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4 flex items-center justify-between">
-            <span>📌 Priorities (Top 3 max)</span>
-            <span className="text-sm text-gray-500">
+        <section className="mypa-card animate-slide-up p-6">
+          <h2 className="mypa-section-header">
+            <span className="flex items-center gap-2">
+              <span className="text-lg">📌</span>
+              <span>Priorities (Top 3 max)</span>
+            </span>
+            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
               {filterTasks(currentSection?.priorities || []).length} / 3
             </span>
           </h2>
@@ -108,10 +143,13 @@ const Dashboard: React.FC = () => {
         </section>
 
         {/* Schedule Section */}
-        <section className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4 flex items-center justify-between">
-            <span>📅 Schedule</span>
-            <span className="text-sm text-gray-500">
+        <section className="mypa-card animate-slide-up p-6">
+          <h2 className="mypa-section-header">
+            <span className="flex items-center gap-2">
+              <span className="text-lg">📅</span>
+              <span>Schedule</span>
+            </span>
+            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
               {filterTasks(currentSection?.schedule || []).length} tasks
             </span>
           </h2>
@@ -131,10 +169,13 @@ const Dashboard: React.FC = () => {
         </section>
 
         {/* Follow-ups Section */}
-        <section className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4 flex items-center justify-between">
-            <span>🔄 Follow-ups</span>
-            <span className="text-sm text-gray-500">
+        <section className="mypa-card animate-slide-up p-6">
+          <h2 className="mypa-section-header">
+            <span className="flex items-center gap-2">
+              <span className="text-lg">🔄</span>
+              <span>Follow-ups</span>
+            </span>
+            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
               {filterTasks(currentSection?.followUps || []).length} pending
             </span>
           </h2>
@@ -155,10 +196,13 @@ const Dashboard: React.FC = () => {
 
         {/* Completed Tasks */}
         {currentSection?.completed.length > 0 && (
-          <section className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center justify-between">
-              <span>✅ Completed</span>
-              <span className="text-sm text-gray-500">
+          <section className="mypa-card animate-slide-up p-6">
+            <h2 className="mypa-section-header">
+              <span className="flex items-center gap-2">
+                <span className="text-lg">✅</span>
+                <span>Completed</span>
+              </span>
+              <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-success-50 dark:bg-success-500/20 text-success-600 dark:text-success-400">
                 {filterTasks(currentSection.completed).length} done today
               </span>
             </h2>
@@ -172,19 +216,32 @@ const Dashboard: React.FC = () => {
         )}
 
         {/* Projects Overview */}
-        <section className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            📋 Active Projects
+        <section className="mypa-card animate-slide-up p-6">
+          <h2 className="mypa-section-header">
+            <span className="flex items-center gap-2">
+              <span className="text-lg">📋</span>
+              <span>Active Projects</span>
+            </span>
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => (
-              <div key={project.id} className="border rounded-lg p-3 hover:shadow-md transition-shadow">
-                <h3 className="font-medium">{project.name}</h3>
-                <p className="text-sm text-blue-600">{project.tag}</p>
+              <div key={project.id} className="group border border-neutral-200 dark:border-neutral-700 rounded-xl p-4 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-elegant transition-all duration-200">
+                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-1">{project.name}</h3>
+                <p className="mypa-project-tag">{project.tag}</p>
               </div>
             ))}
           </div>
         </section>
+      </div>
+      
+      {/* Mobile FAB - only show on mobile */}
+      <div className="md:hidden">
+        <FloatingActionButton />
+      </div>
+      
+      {/* Mobile status indicator */}
+      <div className="fixed bottom-6 left-6 sm:hidden z-40">
+        <StatusIndicator className="!text-xs !px-2 !py-1" />
       </div>
     </div>
   );

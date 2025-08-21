@@ -9,6 +9,8 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
+  rolledFromDate?: string; // For tracking tasks rolled over from previous days
+  notes?: { id: string; content: string; timestamp: string }[]; // Optional notes array
 }
 
 export interface Project {

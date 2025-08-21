@@ -1,4 +1,4 @@
-import { Task, DailySection, Note, Blocker } from '../types';
+import type { Task, DailySection, Note, Blocker } from '../types';
 
 export interface ParsedMarkdown {
   sections: DailySection[];

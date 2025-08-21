@@ -1,0 +1,76 @@
+import { useEffect } from 'react';
+import { useMarkdownStore } from '../stores/useMarkdownStore';
+import { pwaService } from '../services/pwaService';
+import { isOverdue, isDueToday } from '../utils/dateUtils';
+
+export const useNotifications = () => {
+  const { tasks } = useMarkdownStore();
+
+  useEffect(() => {
+    const scheduleTaskNotifications = async () => {
+      // Request notification permission first
+      const permission = await pwaService.requestNotificationPermission();
+      
+      if (permission !== 'granted') {
+        console.log('Notification permission not granted');
+        return;
+      }
+
+      // Find tasks that need reminders
+      const pendingTasks = tasks.filter(task => 
+        task.status === 'pending' && 
+        task.dueDate && 
+        !isOverdue(task.dueDate)
+      );
+
+      // Schedule notifications for due tasks
+      pendingTasks.forEach(task => {
+        if (task.dueDate) {
+          const dueTime = new Date(task.dueDate + 'T09:00:00'); // Default to 9 AM
+          pwaService.scheduleTaskReminder(task.id, task.content, dueTime);
+        }
+      });
+
+      // Show immediate notification for overdue tasks
+      const overdueTasks = tasks.filter(task => 
+        task.status === 'pending' && 
+        task.dueDate && 
+        isOverdue(task.dueDate)
+      );
+
+      if (overdueTasks.length > 0) {
+        pwaService.showNotification('⚠️ Overdue Tasks', {
+          body: `You have ${overdueTasks.length} overdue task${overdueTasks.length > 1 ? 's' : ''}`,
+          data: { type: 'overdue-summary', count: overdueTasks.length },
+          tag: 'overdue-tasks'
+        });
+      }
+
+      // Show notification for tasks due today
+      const dueTodayTasks = tasks.filter(task => 
+        task.status === 'pending' && 
+        task.dueDate && 
+        isDueToday(task.dueDate)
+      );
+
+      if (dueTodayTasks.length > 0) {
+        pwaService.showNotification('📅 Tasks Due Today', {
+          body: `${dueTodayTasks.length} task${dueTodayTasks.length > 1 ? 's' : ''} due today`,
+          data: { type: 'due-today-summary', count: dueTodayTasks.length },
+          tag: 'due-today-tasks'
+        });
+      }
+    };
+
+    // Schedule notifications when tasks change
+    scheduleTaskNotifications();
+  }, [tasks]);
+
+  return {
+    requestPermission: () => pwaService.requestNotificationPermission(),
+    scheduleReminder: (taskId: string, title: string, dueTime: Date) => 
+      pwaService.scheduleTaskReminder(taskId, title, dueTime),
+    showNotification: (title: string, options?: any) => 
+      pwaService.showNotification(title, options)
+  };
+};

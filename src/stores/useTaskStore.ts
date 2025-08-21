@@ -5,8 +5,9 @@ import { supabase } from '../lib/supabaseClient';
 
 
 interface TaskStore extends AppState {
+  tasks: Task[]; // Computed property that returns all tasks from all sections
   fetchAndSetStateForDate: (date: string) => Promise<void>;
-  addTask: (taskData: Omit<Task, 'id' | 'createdAt' | 'completedAt' | 'daily_section_id'>, sectionType?: 'priorities' | 'schedule' | 'followUps') => Promise<void>;
+  addTask: (taskData: Omit<Task, 'id' | 'createdAt' | 'completedAt' | 'updatedAt' | 'daily_section_id'>, sectionType?: 'priorities' | 'schedule' | 'followUps') => Promise<void>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   completeTask: (id: string) => Promise<void>;
@@ -21,6 +22,17 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   projects: [],
   loading: true,
   error: null,
+
+  // Computed property that returns all tasks from all sections
+  get tasks() {
+    const { sections } = get();
+    return sections.flatMap(section => [
+      ...section.priorities,
+      ...section.schedule,
+      ...section.followUps,
+      ...section.completed
+    ]);
+  },
 
 
 
@@ -97,6 +109,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       daily_section_id: currentSection.id,
       task_type: sectionType,
       project_id: taskData.project || null,
+      updatedAt: new Date().toISOString(),
     };
     delete (newTaskPayload as any).project;
 

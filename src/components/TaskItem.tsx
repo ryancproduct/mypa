@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Task } from '../types';
-import { useTaskStore } from '../stores/useTaskStore';
+import type { Task } from '../types';
+import { useMarkdownStore } from '../stores/useMarkdownStore';
 import { isOverdue, isDueToday, getDaysOverdue } from '../utils/dateUtils';
 
 interface TaskItemProps {
@@ -14,7 +14,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   onEdit, 
   showMetadata = true 
 }) => {
-  const { updateTask, completeTask, deleteTask } = useTaskStore();
+  const { updateTask, completeTask, deleteTask } = useMarkdownStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(task.content);
 
@@ -50,21 +50,21 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     if (task.dueDate && isOverdue(task.dueDate)) {
       const days = getDaysOverdue(task.dueDate);
       return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-danger-50 text-danger-600 dark:bg-danger-500/20 dark:text-danger-400">
           ⚠️ Overdue {days}d
         </span>
       );
     }
     if (task.dueDate && isDueToday(task.dueDate)) {
       return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-warning-50 text-warning-600 dark:bg-warning-500/20 dark:text-warning-400">
           📅 Due today
         </span>
       );
     }
     if (task.status === 'in_progress') {
       return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-50 text-primary-600 dark:bg-primary-500/20 dark:text-primary-400">
           🔄 In Progress
         </span>
       );
@@ -74,22 +74,22 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
   const getPriorityColor = () => {
     switch (task.priority) {
-      case 'P1': return 'text-red-600 font-semibold';
-      case 'P2': return 'text-orange-600 font-medium';
-      case 'P3': return 'text-yellow-600';
-      default: return '';
+      case 'P1': return 'text-danger-600 dark:text-danger-400 font-semibold';
+      case 'P2': return 'text-warning-600 dark:text-warning-400 font-medium';
+      case 'P3': return 'text-primary-600 dark:text-primary-400 font-medium';
+      default: return 'text-neutral-700 dark:text-neutral-300';
     }
   };
 
   return (
-    <div className="group flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+    <div className="mypa-task-item group">
       {/* Checkbox */}
       <button
         onClick={handleToggleComplete}
-        className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+        className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 ${
           task.status === 'completed'
-            ? 'bg-green-500 border-green-500 text-white'
-            : 'border-gray-300 hover:border-gray-400 dark:border-gray-600'
+            ? 'bg-success-500 border-success-500 text-white shadow-sm animate-task-complete'
+            : 'border-neutral-300 hover:border-primary-400 dark:border-neutral-600 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10'
         }`}
       >
         {task.status === 'completed' && (
@@ -108,7 +108,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             onChange={(e) => setEditContent(e.target.value)}
             onBlur={handleEdit}
             onKeyDown={handleKeyPress}
-            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600"
+            className="mypa-input text-sm py-2"
             autoFocus
           />
         ) : (
@@ -116,9 +116,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             {/* Task content */}
             <div className="flex items-center space-x-2 flex-wrap">
               <span
-                className={`${
-                  task.status === 'completed' ? 'line-through text-gray-500' : ''
-                } ${getPriorityColor()}`}
+                className={`cursor-pointer hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 ${
+                  task.status === 'completed' ? 'line-through text-neutral-500 dark:text-neutral-400' : getPriorityColor()
+                }`}
                 onClick={() => setIsEditing(true)}
               >
                 {task.content}
@@ -126,24 +126,24 @@ export const TaskItem: React.FC<TaskItemProps> = ({
               
               {/* Project tag */}
               {showMetadata && task.project && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                <span className="mypa-project-tag">
                   {task.project}
                 </span>
               )}
 
               {/* Assignee */}
               {showMetadata && task.assignee && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300">
                   @{task.assignee}
                 </span>
               )}
 
               {/* Priority */}
               {showMetadata && task.priority && (
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  task.priority === 'P1' ? 'bg-red-100 text-red-800' :
-                  task.priority === 'P2' ? 'bg-orange-100 text-orange-800' :
-                  'bg-yellow-100 text-yellow-800'
+                <span className={`mypa-priority-indicator ${
+                  task.priority === 'P1' ? 'mypa-priority-p1' :
+                  task.priority === 'P2' ? 'mypa-priority-p2' :
+                  'mypa-priority-p3'
                 }`}>
                   !{task.priority}
                 </span>
@@ -156,7 +156,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                 {getStatusBadge()}
                 
                 {task.dueDate && !isOverdue(task.dueDate) && !isDueToday(task.dueDate) && (
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">
                     Due: {task.dueDate}
                   </span>
                 )}
@@ -167,10 +167,10 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center space-x-2">
+      <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center space-x-1">
         <button
           onClick={handleEdit}
-          className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+          className="p-1.5 text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 rounded-md transition-all duration-150"
           title="Edit task"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,7 +180,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         
         <button
           onClick={() => deleteTask(task.id)}
-          className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+          className="p-1.5 text-neutral-400 hover:text-danger-600 dark:hover:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-500/10 rounded-md transition-all duration-150"
           title="Delete task"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
