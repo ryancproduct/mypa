@@ -79,14 +79,16 @@ define(['./workbox-25659a9f'], (function (workbox) { 'use strict';
    */
   workbox.precacheAndRoute([{
     "url": "index.html",
-    "revision": "0.dfcullnikr"
+    "revision": "0.h3gsbjqbn5"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
-    allowlist: [/^\/$/]
+    allowlist: [/^\/$/],
+    denylist: [/^\/_/, /\/[^/?]+\.[^/]+$/]
   }));
   workbox.registerRoute(/^https:\/\/api\.anthropic\.com\/.*/i, new workbox.NetworkFirst({
     "cacheName": "anthropic-api-cache",
+    "networkTimeoutSeconds": 10,
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 10,
       maxAgeSeconds: 86400
@@ -101,6 +103,28 @@ define(['./workbox-25659a9f'], (function (workbox) { 'use strict';
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 10,
       maxAgeSeconds: 31536000
+    })]
+  }), 'GET');
+  workbox.registerRoute(({
+    request
+  }) => {
+    return request.destination === "document";
+  }, new workbox.NetworkFirst({
+    "cacheName": "pages-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 20,
+      maxAgeSeconds: 86400
+    })]
+  }), 'GET');
+  workbox.registerRoute(({
+    request
+  }) => {
+    return request.destination === "image";
+  }, new workbox.CacheFirst({
+    "cacheName": "images-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 50,
+      maxAgeSeconds: 2592000
     })]
   }), 'GET');
 

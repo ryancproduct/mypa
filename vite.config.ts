@@ -10,6 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/api\.anthropic\.com\/.*/i,
@@ -19,7 +21,8 @@ export default defineConfig({
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 // 24 hours
-              }
+              },
+              networkTimeoutSeconds: 10
             }
           },
           {
@@ -39,6 +42,32 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
               }
             }
+          },
+          {
+            urlPattern: ({ request }) => {
+              return request.destination === 'document';
+            },
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 // 24 hours
+              }
+            }
+          },
+          {
+            urlPattern: ({ request }) => {
+              return request.destination === 'image';
+            },
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              }
+            }
           }
         ]
       },
@@ -46,31 +75,85 @@ export default defineConfig({
       manifest: {
         name: 'MyPA - Personal Assistant',
         short_name: 'MyPA',
-        description: 'AI-powered personal productivity assistant',
+        description: 'AI-powered personal productivity assistant with smart task management and Claude integration',
         theme_color: '#0ea5e9',
         background_color: '#fcfcfd',
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
+        categories: ['productivity', 'business', 'utilities'],
+        lang: 'en',
+        dir: 'ltr',
         icons: [
           {
             src: 'icon-192x192.svg',
             sizes: '192x192',
-            type: 'image/svg+xml'
-          },
-          {
-            src: 'icon-512x512.svg',
-            sizes: '512x512',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
+            purpose: 'any'
           },
           {
             src: 'icon-512x512.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: 'icon-512x512.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'maskable'
+          },
+          {
+            src: 'apple-touch-icon.svg',
+            sizes: '180x180',
+            type: 'image/svg+xml',
+            purpose: 'any'
           }
-        ]
+        ],
+        screenshots: [
+          {
+            src: '/screenshots/desktop-1.png',
+            sizes: '1280x720',
+            type: 'image/png',
+            platform: 'wide',
+            label: 'MyPA Desktop Dashboard'
+          },
+          {
+            src: '/screenshots/mobile-1.png',
+            sizes: '390x844',
+            type: 'image/png',
+            platform: 'narrow',
+            label: 'MyPA Mobile Interface'
+          }
+        ],
+        shortcuts: [
+          {
+            name: 'Quick Add Task',
+            short_name: 'Add Task',
+            description: 'Quickly add a new task',
+            url: '/?action=add-task',
+            icons: [{ src: '/icon-192x192.svg', sizes: '192x192' }]
+          },
+          {
+            name: 'Today\'s Tasks',
+            short_name: 'Today',
+            description: 'View today\'s priorities and schedule',
+            url: '/?view=today',
+            icons: [{ src: '/icon-192x192.svg', sizes: '192x192' }]
+          },
+          {
+            name: 'AI Assistant',
+            short_name: 'AI Chat',
+            description: 'Chat with Claude AI assistant',
+            url: '/?view=chat',
+            icons: [{ src: '/icon-192x192.svg', sizes: '192x192' }]
+          }
+        ],
+        prefer_related_applications: false,
+        edge_side_panel: {
+          preferred_width: 400
+        }
       },
       devOptions: {
         enabled: true

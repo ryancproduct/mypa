@@ -3,7 +3,6 @@
 
 export class FileSystemService {
   private fileHandle: FileSystemFileHandle | null = null;
-  private todoFilePath = '/Users/ryanclement/Desktop/Notes/ToDo.md';
 
   // Request file access using the File System Access API
   async requestFileAccess(): Promise<boolean> {

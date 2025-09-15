@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useMarkdownStore } from '../stores/useMarkdownStore';
-import { fileSystemService } from '../services/fileSystemService';
 
 export const FileConnection: React.FC = () => {
   const { 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMarkdownStore } from '../stores/useMarkdownStore';
 import { getDayName } from '../utils/dateUtils';
 import { TaskItem } from '../components/TaskItem';
+import { SwipeableTaskItem } from '../components/SwipeableTaskItem';
 import { TaskInput } from '../components/TaskInput';
 import { ProjectFilter } from '../components/ProjectFilter';
 import { StatusIndicator } from '../components/StatusIndicator';
@@ -18,12 +19,13 @@ const Dashboard: React.FC = () => {
   const { currentDate, getCurrentSection, projects, loading, error } = useMarkdownStore();
   const currentSection = getCurrentSection();
   const dayName = getDayName(currentDate);
-  
+
   // Initialize notifications
   useNotifications();
 
+  // Detect mobile device for swipe gestures
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 
-  
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -40,8 +42,20 @@ const Dashboard: React.FC = () => {
 
   const filterTasks = (tasks: Task[]) => {
     if (selectedProjects.length === 0) return tasks;
-    return tasks.filter(task => 
+    return tasks.filter(task =>
       !task.project || selectedProjects.includes(task.project)
+    );
+  };
+
+  // Render appropriate task component based on device type
+  const renderTaskItem = (task: Task, showMetadata = true) => {
+    const TaskComponent = isMobile ? SwipeableTaskItem : TaskItem;
+    return (
+      <TaskComponent
+        key={task.id}
+        task={task}
+        showMetadata={showMetadata}
+      />
     );
   };
 
@@ -86,6 +100,21 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
+      {/* Mobile Swipe Instructions */}
+      {isMobile && (
+        <div className="mypa-card p-4 mb-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text-sm text-blue-700 dark:text-blue-300">
+              <p className="font-medium">Touch gestures enabled</p>
+              <p>Swipe right to complete • Swipe left to delete</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Project Filters */}
       {showFilters && (
         <ProjectFilter
@@ -99,137 +128,195 @@ const Dashboard: React.FC = () => {
       {/* File Connection */}
       <FileConnection />
 
-      <div className="grid gap-6 lg:gap-8">
-        {/* Claude AI Assistant */}
-        <section className="mypa-card animate-slide-up p-6">
-          <h2 className="mypa-section-header">
-            <span className="flex items-center gap-2">
-              <span className="text-lg">🤖</span>
-              <span>AI Assistant</span>
-            </span>
-            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-primary-100 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400">
-              Claude
-            </span>
+      {/* HERO SECTION - Today's Priorities (Highest Visual Priority) */}
+      <section className="mypa-card animate-slide-up p-8 border-2 border-primary-200 dark:border-primary-800 bg-gradient-to-br from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 shadow-lg mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-primary-900 dark:text-primary-100 flex items-center gap-3">
+            <span className="text-2xl">📌</span>
+            <span>Today's Priorities</span>
           </h2>
-          <ChatInterface />
-        </section>
-
-        {/* Priorities Section */}
-        <section className="mypa-card animate-slide-up p-6">
-          <h2 className="mypa-section-header">
-            <span className="flex items-center gap-2">
-              <span className="text-lg">📌</span>
-              <span>Priorities (Top 3 max)</span>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
+              {filterTasks(currentSection?.priorities || []).length}
             </span>
-            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
-              {filterTasks(currentSection?.priorities || []).length} / 3
-            </span>
-          </h2>
-          
-          <div className="space-y-1">
-            {filterTasks(currentSection?.priorities || []).map((task) => (
-              <TaskItem key={task.id} task={task} />
-            ))}
+            <span className="text-sm text-primary-600 dark:text-primary-400">/ 3 max</span>
           </div>
-          
-          {(!currentSection?.priorities.length || currentSection.priorities.length < 3) && (
-            <div className="mt-4">
-              <TaskInput 
-                sectionType="priorities" 
-                placeholder="Add high-priority task..."
-              />
+        </div>
+
+        <div className="space-y-3">
+          {filterTasks(currentSection?.priorities || []).map((task) => (
+            <div key={task.id} className="bg-white dark:bg-neutral-800 rounded-lg p-1 shadow-sm border border-primary-100 dark:border-primary-800">
+              {renderTaskItem(task)}
+            </div>
+          ))}
+
+          {filterTasks(currentSection?.priorities || []).length === 0 && (
+            <div className="text-center py-8 text-primary-600 dark:text-primary-400">
+              <p className="text-lg font-medium mb-2">🎯 Focus on what matters most</p>
+              <p className="text-sm opacity-75">Add your top 3 priorities for today</p>
             </div>
           )}
-        </section>
+        </div>
 
-        {/* Schedule Section */}
-        <section className="mypa-card animate-slide-up p-6">
-          <h2 className="mypa-section-header">
-            <span className="flex items-center gap-2">
-              <span className="text-lg">📅</span>
-              <span>Schedule</span>
-            </span>
-            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
-              {filterTasks(currentSection?.schedule || []).length} tasks
-            </span>
-          </h2>
-          
-          <div className="space-y-1">
-            {filterTasks(currentSection?.schedule || []).map((task) => (
-              <TaskItem key={task.id} task={task} />
-            ))}
-          </div>
-          
-          <div className="mt-4">
-            <TaskInput 
-              sectionType="schedule" 
-              placeholder="Add scheduled task or meeting..."
+        {(!currentSection?.priorities.length || currentSection.priorities.length < 3) && (
+          <div className="mt-6">
+            <TaskInput
+              sectionType="priorities"
+              placeholder="Add your most important task for today..."
             />
           </div>
-        </section>
+        )}
+      </section>
 
-        {/* Follow-ups Section */}
-        <section className="mypa-card animate-slide-up p-6">
-          <h2 className="mypa-section-header">
-            <span className="flex items-center gap-2">
-              <span className="text-lg">🔄</span>
-              <span>Follow-ups</span>
-            </span>
-            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
-              {filterTasks(currentSection?.followUps || []).length} pending
-            </span>
-          </h2>
-          
-          <div className="space-y-1">
-            {filterTasks(currentSection?.followUps || []).map((task) => (
-              <TaskItem key={task.id} task={task} />
-            ))}
-          </div>
-          
-          <div className="mt-4">
-            <TaskInput 
-              sectionType="followUps" 
-              placeholder="Add follow-up item..."
-            />
-          </div>
-        </section>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        {/* LEFT COLUMN - Urgent & Time-Sensitive */}
+        <div className="space-y-6">
+          {/* Due Today / Overdue - High Priority Visual Treatment */}
+          {(currentSection?.schedule || []).some(task =>
+            task.dueDate && (new Date(task.dueDate) <= new Date() || task.dueDate === new Date().toISOString().split('T')[0])
+          ) && (
+            <section className="mypa-card animate-slide-up p-6 border-l-4 border-warning-400 bg-warning-50/50 dark:bg-warning-900/10">
+              <h3 className="text-lg font-semibold text-warning-700 dark:text-warning-300 mb-4 flex items-center gap-2">
+                <span>⚡</span>
+                <span>Due Today & Overdue</span>
+              </h3>
+              <div className="space-y-2">
+                {filterTasks(currentSection?.schedule || [])
+                  .filter(task => task.dueDate && (new Date(task.dueDate) <= new Date() || task.dueDate === new Date().toISOString().split('T')[0]))
+                  .slice(0, 3)
+                  .map((task) => (
+                    <div key={task.id} className="bg-white dark:bg-neutral-800 rounded-lg p-1 border border-warning-200 dark:border-warning-800">
+                      {renderTaskItem(task)}
+                    </div>
+                  ))}
+              </div>
+            </section>
+          )}
 
-        {/* Completed Tasks */}
-        {currentSection?.completed.length > 0 && (
+          {/* Schedule Section - Secondary Priority */}
           <section className="mypa-card animate-slide-up p-6">
-            <h2 className="mypa-section-header">
+            <h3 className="mypa-section-header">
+              <span className="flex items-center gap-2">
+                <span className="text-lg">📅</span>
+                <span>Schedule</span>
+              </span>
+              <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
+                {filterTasks(currentSection?.schedule || []).length} tasks
+              </span>
+            </h3>
+
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {filterTasks(currentSection?.schedule || []).map((task) =>
+                renderTaskItem(task)
+              )}
+            </div>
+
+            <div className="mt-4">
+              <TaskInput
+                sectionType="schedule"
+                placeholder="Add scheduled task or meeting..."
+              />
+            </div>
+          </section>
+        </div>
+
+        {/* RIGHT COLUMN - Support & Secondary Functions */}
+        <div className="space-y-6">
+          {/* AI Assistant - Supporting Role */}
+          <section className="mypa-card animate-slide-up p-6">
+            <h3 className="mypa-section-header">
+              <span className="flex items-center gap-2">
+                <span className="text-lg">🤖</span>
+                <span>AI Assistant</span>
+              </span>
+              <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-primary-100 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400">
+                Claude
+              </span>
+            </h3>
+            <ChatInterface />
+          </section>
+
+          {/* Follow-ups Section - Supporting Information */}
+          <section className="mypa-card animate-slide-up p-6">
+            <h3 className="mypa-section-header">
+              <span className="flex items-center gap-2">
+                <span className="text-lg">🔄</span>
+                <span>Follow-ups</span>
+              </span>
+              <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
+                {filterTasks(currentSection?.followUps || []).length} pending
+              </span>
+            </h3>
+
+            <div className="space-y-1 max-h-48 overflow-y-auto">
+              {filterTasks(currentSection?.followUps || []).map((task) =>
+                renderTaskItem(task)
+              )}
+            </div>
+
+            <div className="mt-4">
+              <TaskInput
+                sectionType="followUps"
+                placeholder="Add follow-up item..."
+              />
+            </div>
+          </section>
+        </div>
+      </div>
+
+      {/* BOTTOM SECTION - Completed Tasks & Projects Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        {/* Completed Tasks - Collapsible lower priority */}
+        {currentSection?.completed.length > 0 && (
+          <section className="mypa-card animate-slide-up p-6 opacity-75 hover:opacity-100 transition-opacity duration-200">
+            <h3 className="mypa-section-header">
               <span className="flex items-center gap-2">
                 <span className="text-lg">✅</span>
-                <span>Completed</span>
+                <span>Completed Today</span>
               </span>
               <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-success-50 dark:bg-success-500/20 text-success-600 dark:text-success-400">
-                {filterTasks(currentSection.completed).length} done today
+                {filterTasks(currentSection.completed).length} done
               </span>
-            </h2>
-            
-            <div className="space-y-1">
-              {filterTasks(currentSection.completed).map((task) => (
-                <TaskItem key={task.id} task={task} showMetadata={false} />
+            </h3>
+
+            <div className="space-y-1 max-h-48 overflow-y-auto">
+              {filterTasks(currentSection.completed).slice(0, 5).map((task) => (
+                <div key={task.id} className="opacity-60">
+                  {renderTaskItem(task, false)}
+                </div>
               ))}
+              {filterTasks(currentSection.completed).length > 5 && (
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center pt-2">
+                  +{filterTasks(currentSection.completed).length - 5} more completed tasks
+                </p>
+              )}
             </div>
           </section>
         )}
 
-        {/* Projects Overview */}
+        {/* Projects Overview - Reference Information */}
         <section className="mypa-card animate-slide-up p-6">
-          <h2 className="mypa-section-header">
+          <h3 className="mypa-section-header">
             <span className="flex items-center gap-2">
               <span className="text-lg">📋</span>
               <span>Active Projects</span>
             </span>
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((project) => (
-              <div key={project.id} className="group border border-neutral-200 dark:border-neutral-700 rounded-xl p-4 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-elegant transition-all duration-200">
-                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-1">{project.name}</h3>
-                <p className="mypa-project-tag">{project.tag}</p>
+            <span className="text-sm font-medium px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
+              {projects.length} projects
+            </span>
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {projects.slice(0, 6).map((project) => (
+              <div key={project.id} className="group border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-sm transition-all duration-200">
+                <h4 className="font-medium text-neutral-900 dark:text-neutral-100 text-sm mb-1">{project.name}</h4>
+                <p className="mypa-project-tag text-xs">{project.tag}</p>
               </div>
             ))}
+            {projects.length > 6 && (
+              <div className="flex items-center justify-center text-xs text-neutral-500 dark:text-neutral-400 border-2 border-dashed border-neutral-200 dark:border-neutral-700 rounded-lg p-3">
+                +{projects.length - 6} more projects
+              </div>
+            )}
           </div>
         </section>
       </div>

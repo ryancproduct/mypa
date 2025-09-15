@@ -20,7 +20,7 @@ interface PriorityInsights {
 export class PriorityService {
   static async generateIntelligentSuggestions(
     currentSection: DailySection,
-    _allTasks: Task[]
+    allTasks: Task[]
   ): Promise<PriorityInsights> {
     const suggestions = this.generateRuleBased(currentSection, allTasks);
     
@@ -48,7 +48,6 @@ export class PriorityService {
     _allTasks: Task[]
   ): PrioritySuggestion[] {
     const suggestions: PrioritySuggestion[] = [];
-    const _today = new Date().toISOString().split('T')[0];
 
     // Analyze all pending tasks for priority suggestions
     const pendingTasks = [
@@ -112,13 +111,12 @@ export class PriorityService {
 
   private static identifyDailyFocus(
     currentSection: DailySection,
-    _allTasks: Task[]
+    allTasks: Task[]
   ): string[] {
     const focus: string[] = [];
     
     // Check priority distribution
     const p1Count = currentSection.priorities.filter(t => t.priority === 'P1' && t.status !== 'completed').length;
-    const _p2Count = currentSection.priorities.filter(t => t.priority === 'P2' && t.status !== 'completed').length;
     
     if (p1Count === 0) {
       focus.push('🎯 Consider adding 1-2 high-priority (P1) tasks for today');

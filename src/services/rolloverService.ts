@@ -13,9 +13,9 @@ interface RolloverResult {
 export class RolloverService {
   static async performSmartRollover(
     previousDate: string,
-    _currentDate: string,
+    currentDate: string,
     previousSection: DailySection | null,
-    _allTasks: Task[]
+    allTasks: Task[]
   ): Promise<RolloverResult & { aiInsights: string }> {
     const basicRollover = this.performDailyRollover(previousDate, currentDate, previousSection, allTasks);
     
@@ -110,7 +110,7 @@ export class RolloverService {
       rolledOverTasks.push(newTask);
     }
 
-    // Sort tasks by priority and type for optimal placement
+    // Sort tasks by priority for summary
     const priorityTasks = rolledOverTasks.filter(task => 
       task.priority === 'P1' || task.priority === 'P2' || task.priority === 'P3'
     ).sort((a, b) => {
@@ -118,15 +118,6 @@ export class RolloverService {
       return (priorityOrder[a.priority as keyof typeof priorityOrder] || 4) - 
              (priorityOrder[b.priority as keyof typeof priorityOrder] || 4);
     });
-
-    const followUpTasks = rolledOverTasks.filter(task => 
-      task.assignee || task.content.toLowerCase().includes('follow') || 
-      task.content.toLowerCase().includes('check') || task.content.toLowerCase().includes('remind')
-    );
-
-    const _scheduleTasks = rolledOverTasks.filter(task => 
-      !priorityTasks.includes(task) && !followUpTasks.includes(task)
-    );
 
     const summary = this.generateRolloverSummary(
       uncompletedTasks.length,
@@ -176,8 +167,8 @@ export class RolloverService {
 
   static generateDailyInsight(
     currentSection: DailySection,
-    _allTasks: Task[],
-    currentDate: string
+    allTasks: Task[],
+    _currentDate: string
   ): string {
     const insights = [];
 

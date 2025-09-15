@@ -3,6 +3,8 @@ import type { AppState, Task, DailySection, Project } from '../types';
 import { getCurrentDateAustralian } from '../utils/dateUtils';
 import { parseMarkdownContent, exportToMarkdown } from '../utils/markdownParser';
 import { fileSystemService } from '../services/fileSystemService';
+import { generateUUID } from '../utils/uuid';
+
 
 interface MarkdownTaskStore extends AppState {
   tasks: Task[]; // Computed property that returns all tasks from all sections
@@ -31,19 +33,19 @@ interface MarkdownTaskStore extends AppState {
 }
 
 export const useMarkdownStore = create<MarkdownTaskStore>((set, get) => ({
-  currentDate: '2025-08-20', // Set to match your latest ToDo.md date
+  currentDate: getCurrentDateAustralian(), // Use current date in Australia/Sydney timezone
   sections: [
-    // Demo section for 2025-08-20 to show interface working
+    // Demo section for today to show interface working
     {
       id: 'demo-section',
-      date: '2025-08-20',
+      date: getCurrentDateAustralian(),
       priorities: [
         {
           id: 'demo-1',
           content: 'Continue onboarding flow rollout - next batch',
           status: 'pending',
           project: '#LoneWorker',
-          dueDate: '2025-08-20',
+          dueDate: getCurrentDateAustralian(),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
@@ -150,7 +152,7 @@ export const useMarkdownStore = create<MarkdownTaskStore>((set, get) => ({
     if (!currentSection) {
       const { currentDate } = get();
       currentSection = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         date: currentDate,
         priorities: [],
         schedule: [],
@@ -166,7 +168,7 @@ export const useMarkdownStore = create<MarkdownTaskStore>((set, get) => ({
     }
 
     const newTask: Task = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       ...taskData,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -282,7 +284,7 @@ export const useMarkdownStore = create<MarkdownTaskStore>((set, get) => ({
 
   addProject: async (projectData) => {
     const newProject: Project = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       ...projectData,
     };
 

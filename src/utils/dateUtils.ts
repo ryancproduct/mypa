@@ -1,6 +1,13 @@
+/**
+ * Date utility functions for configurable timezone
+ * All date operations should use the configured timezone to maintain consistency
+ */
+
+import { TIMEZONE_CONFIG } from '../config/app';
+
 export const formatDateAustralian = (date: Date): string => {
   return new Intl.DateTimeFormat('en-AU', {
-    timeZone: 'Australia/Sydney',
+    timeZone: TIMEZONE_CONFIG.default,
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -13,7 +20,7 @@ export const getCurrentDateAustralian = (): string => {
 
 export const formatTimeAustralian = (date: Date): string => {
   return new Intl.DateTimeFormat('en-AU', {
-    timeZone: 'Australia/Sydney',
+    timeZone: TIMEZONE_CONFIG.default,
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,

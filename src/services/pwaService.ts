@@ -162,7 +162,7 @@ class PWAService {
     }
   }
 
-  // Task reminder notifications
+  // Task reminder notifications (legacy - use notificationService instead)
   async scheduleTaskReminder(taskId: string, title: string, dueTime: Date): Promise<void> {
     const now = new Date();
     const timeUntilDue = dueTime.getTime() - now.getTime();
@@ -178,6 +178,30 @@ class PWAService {
           ]
         });
       }, timeUntilDue);
+    }
+  }
+
+  // Get app version for cache management
+  getAppVersion(): string {
+    return '1.0.0'; // This should be dynamic in production
+  }
+
+  // Check if app needs update
+  async checkForUpdate(): Promise<boolean> {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'CHECK_FOR_UPDATE' });
+      return true;
+    }
+    return false;
+  }
+
+  // Clear app cache
+  async clearCache(): Promise<void> {
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames.map(cacheName => caches.delete(cacheName))
+      );
     }
   }
 }
