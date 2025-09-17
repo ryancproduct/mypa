@@ -20,7 +20,7 @@ export const SimpleAIChat: React.FC<SimpleAIChatProps> = ({ className = '' }) =>
   const [showSetup, setShowSetup] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { addTask, tasks, projects, currentDate, getCurrentSection } = useMarkdownStore();
+  const { addTask, tasks, projects, currentDate, getCurrentSection, loading: storeLoading } = useMarkdownStore();
 
   // Get current section for today's tasks
   const currentSection = getCurrentSection();
@@ -230,6 +230,17 @@ For other conversations, just be helpful and friendly.`
     }
   };
 
+  if (storeLoading) {
+    return (
+      <div className={`mypa-card flex items-center justify-center p-6 ${className}`}>
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading tasks...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (showSetup) {
     return (
       <div className={`mypa-card p-6 ${className}`}>
@@ -257,7 +268,7 @@ For other conversations, just be helpful and friendly.`
   }
 
   return (
-    <div className={`mypa-card flex flex-col h-96 ${className}`}>
+    <div className={`mypa-card flex flex-col ${className.includes('h-full') ? 'h-full' : 'h-96'} ${className.replace('h-full', '')}`}>
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
           <div
