@@ -23,7 +23,7 @@ export class ProxyProvider extends BaseAIProvider {
       type: 'custom',
       name: 'Secure Proxy',
       description: 'Secure backend proxy for AI providers - no API keys exposed',
-      defaultModel: 'anthropic',
+      defaultModel: 'openai',
       requiresApiKey: true,
       supportedFeatures: ['text-generation', 'reasoning', 'analysis', 'secure-proxy']
     });
@@ -46,7 +46,7 @@ export class ProxyProvider extends BaseAIProvider {
         },
         body: JSON.stringify({
           messages,
-          provider: options?.model || 'anthropic', // Use model field to specify provider
+          provider: options?.model || 'openai', // Use OpenAI as default provider
           options: {
             ...options,
             model: undefined // Remove model from options since we use it for provider selection

@@ -24,6 +24,7 @@ app.use(cors({
     'http://localhost:5173', 
     'http://localhost:5174', 
     /https:\/\/.*\.vercel\.app$/,
+    'https://mypa-plum.vercel.app',
     'https://mypa-3xic2vl02-ryan-clements-projects-75004587.vercel.app'
   ],
   credentials: true
