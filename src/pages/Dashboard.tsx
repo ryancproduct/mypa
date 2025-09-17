@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMarkdownStore } from '../stores/useMarkdownStore';
 import { getDayName } from '../utils/dateUtils';
 import { TaskItem } from '../components/TaskItem';
@@ -17,9 +17,13 @@ import { DashboardSkeleton } from '../components/LoadingSkeleton';
 import type { Task } from '../types';
 
 const Dashboard: React.FC = () => {
-  const { currentDate, getCurrentSection, projects, loading, error } = useMarkdownStore();
+  const { currentDate, getCurrentSection, projects, loading, error, initialize } = useMarkdownStore();
   const currentSection = getCurrentSection();
   const dayName = getDayName(currentDate);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   // Initialize notifications
   useNotifications();

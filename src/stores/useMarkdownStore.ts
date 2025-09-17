@@ -30,6 +30,7 @@ interface MarkdownTaskStore extends AppState {
   // Auto-save
   autoSave: boolean;
   setAutoSave: (enabled: boolean) => void;
+  initialize: () => Promise<void>;
 }
 
 export const useMarkdownStore = create<MarkdownTaskStore>((set, get) => ({
@@ -295,5 +296,17 @@ export const useMarkdownStore = create<MarkdownTaskStore>((set, get) => ({
 
   setAutoSave: (enabled) => {
     set({ autoSave: enabled });
+  },
+
+  initialize: async () => {
+    try {
+      const hasAccess = await fileSystemService.hasFileAccess();
+      if (hasAccess) {
+        await get().loadFromFile();
+        set({ fileConnected: true });
+      }
+    } catch (error: any) {
+      set({ error: error.message });
+    }
   },
 }));
