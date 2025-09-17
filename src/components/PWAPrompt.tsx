@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { pwaService, type PWAUpdateInfo } from '../services/pwaService';
+import { appService, type PWAUpdateInfo } from '../services/appService';
 
 export const PWAPrompt: React.FC = () => {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
@@ -9,13 +9,13 @@ export const PWAPrompt: React.FC = () => {
   useEffect(() => {
     // Check for install prompt
     const checkInstallPrompt = () => {
-      if (pwaService.canInstall() && !pwaService.isStandalone()) {
+      if (appService.canInstall() && !appService.isStandalone()) {
         setShowInstallPrompt(true);
       }
     };
 
     // Listen for PWA updates
-    pwaService.onUpdate((info) => {
+    appService.onUpdate((info) => {
       setUpdateInfo(info);
       if (info.needRefresh) {
         setShowUpdatePrompt(true);
@@ -30,7 +30,7 @@ export const PWAPrompt: React.FC = () => {
   }, []);
 
   const handleInstall = async () => {
-    const installed = await pwaService.promptInstall();
+    const installed = await appService.promptInstall();
     if (installed) {
       setShowInstallPrompt(false);
     }

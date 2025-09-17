@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useMarkdownStore } from '../stores/useMarkdownStore';
-import { pwaService } from '../services/pwaService';
+import { appService } from '../services/appService';
 import { isOverdue, isDueToday } from '../utils/dateUtils';
 
 export const useNotifications = () => {
@@ -9,7 +9,7 @@ export const useNotifications = () => {
   useEffect(() => {
     const scheduleTaskNotifications = async () => {
       // Request notification permission first
-      const permission = await pwaService.requestNotificationPermission();
+      const permission = await appService.requestNotificationPermission();
       
       if (permission !== 'granted') {
         console.log('Notification permission not granted');
@@ -27,7 +27,7 @@ export const useNotifications = () => {
       pendingTasks.forEach(task => {
         if (task.dueDate) {
           const dueTime = new Date(task.dueDate + 'T09:00:00'); // Default to 9 AM
-          pwaService.scheduleTaskReminder(task.id, task.content, dueTime);
+          appService.scheduleTaskReminder(task.id, task.content, dueTime);
         }
       });
 
@@ -39,7 +39,7 @@ export const useNotifications = () => {
       );
 
       if (overdueTasks.length > 0) {
-        pwaService.showNotification('⚠️ Overdue Tasks', {
+        appService.showNotification('⚠️ Overdue Tasks', {
           body: `You have ${overdueTasks.length} overdue task${overdueTasks.length > 1 ? 's' : ''}`,
           data: { type: 'overdue-summary', count: overdueTasks.length },
           tag: 'overdue-tasks'
@@ -54,7 +54,7 @@ export const useNotifications = () => {
       );
 
       if (dueTodayTasks.length > 0) {
-        pwaService.showNotification('📅 Tasks Due Today', {
+        appService.showNotification('📅 Tasks Due Today', {
           body: `${dueTodayTasks.length} task${dueTodayTasks.length > 1 ? 's' : ''} due today`,
           data: { type: 'due-today-summary', count: dueTodayTasks.length },
           tag: 'due-today-tasks'
@@ -67,10 +67,10 @@ export const useNotifications = () => {
   }, [tasks]);
 
   return {
-    requestPermission: () => pwaService.requestNotificationPermission(),
+    requestPermission: () => appService.requestNotificationPermission(),
     scheduleReminder: (taskId: string, title: string, dueTime: Date) => 
-      pwaService.scheduleTaskReminder(taskId, title, dueTime),
+      appService.scheduleTaskReminder(taskId, title, dueTime),
     showNotification: (title: string, options?: any) => 
-      pwaService.showNotification(title, options)
+      appService.showNotification(title, options)
   };
 };

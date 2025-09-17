@@ -1,6 +1,5 @@
-import { pwaService } from '../services/pwaService';
+import { appService } from '../services/appService';
 import { offlineStorageService } from '../services/offlineStorageService';
-import { notificationService } from '../services/notificationService';
 import type { Task, DailySection, Project } from '../types';
 
 interface TestResult {
@@ -51,8 +50,8 @@ export class PWATestSuite {
 
   private async testInstallPrompt(): Promise<void> {
     try {
-      const canInstall = pwaService.canInstall();
-      const isStandalone = pwaService.isStandalone();
+      const canInstall = appService.canInstall();
+      const isStandalone = appService.isStandalone();
       
       if (isStandalone) {
         this.addResult('Install Prompt', 'pass', 'App is running in standalone mode');
@@ -92,9 +91,9 @@ export class PWATestSuite {
   private async testNotificationService(): Promise<void> {
     try {
       // Test notification service initialization
-      const initialized = await notificationService.initialize();
+      const permission = await appService.requestNotificationPermission();
       
-      if (initialized) {
+      if (permission === 'granted') {
         this.addResult('Notification Service', 'pass', 'Notification service initialized successfully');
         
         // Test task reminder (without actually showing notification)
@@ -108,7 +107,7 @@ export class PWATestSuite {
         };
         
         // This would schedule a notification (commented out to avoid spam)
-        // notificationService.scheduleTaskReminder(testTask);
+        // appService.scheduleTaskReminder(testTask);
         console.log('Test task created:', testTask.id);
         
         this.addResult('Task Reminders', 'pass', 'Task reminder scheduling working');
@@ -268,7 +267,7 @@ export class PWATestSuite {
       this.addResult('Network Status', 'pass', `Currently ${isOnline ? 'online' : 'offline'}`);
       
       // Test PWA service network detection
-      const pwaOnlineStatus = pwaService.isOnline();
+      const pwaOnlineStatus = appService.isOnline();
       if (pwaOnlineStatus === isOnline) {
         this.addResult('PWA Network Detection', 'pass', 'PWA service correctly detects network status');
       } else {
