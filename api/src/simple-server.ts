@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -8,9 +9,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Initialize Anthropic
+// Initialize AI providers
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || ''
+});
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || ''
 });
 
 // Middleware
@@ -41,55 +46,83 @@ app.get('/health', (req, res) => {
 // AI endpoints
 app.post('/api/v1/ai/generate', simpleAuth, async (req, res) => {
   try {
-    const { messages, options = {} } = req.body;
+    const { messages, options = {}, provider = 'openai' } = req.body;
     
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'Messages array required' });
     }
 
-    // Handle system messages for Anthropic
-    const systemMessages = messages.filter((msg: any) => msg.role === 'system');
-    const otherMessages = messages.filter((msg: any) => msg.role !== 'system');
-    
-    let processedMessages = otherMessages;
-    if (systemMessages.length > 0) {
-      const systemContent = systemMessages.map((msg: any) => msg.content).join('\n\n');
-      const firstUserMessage = otherMessages.find((msg: any) => msg.role === 'user');
+    let response, content, usage, model;
+
+    if (provider === 'openai') {
+      // OpenAI implementation
+      const completion = await openai.chat.completions.create({
+        model: options.model || 'gpt-3.5-turbo',
+        messages: messages.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        max_tokens: options.maxTokens || 1000,
+        temperature: options.temperature || 0.7,
+      });
+
+      content = completion.choices[0].message.content;
+      usage = {
+        promptTokens: completion.usage?.prompt_tokens || 0,
+        completionTokens: completion.usage?.completion_tokens || 0,
+        totalTokens: completion.usage?.total_tokens || 0
+      };
+      model = completion.model;
+    } else {
+      // Anthropic implementation (fallback)
+      const systemMessages = messages.filter((msg: any) => msg.role === 'system');
+      const otherMessages = messages.filter((msg: any) => msg.role !== 'system');
       
-      if (firstUserMessage) {
-        processedMessages = otherMessages.map((msg: any) => 
-          msg === firstUserMessage 
-            ? { ...msg, content: `${systemContent}\n\n${msg.content}` }
-            : msg
-        );
+      let processedMessages = otherMessages;
+      if (systemMessages.length > 0) {
+        const systemContent = systemMessages.map((msg: any) => msg.content).join('\n\n');
+        const firstUserMessage = otherMessages.find((msg: any) => msg.role === 'user');
+        
+        if (firstUserMessage) {
+          processedMessages = otherMessages.map((msg: any) => 
+            msg === firstUserMessage 
+              ? { ...msg, content: `${systemContent}\n\n${msg.content}` }
+              : msg
+          );
+        }
       }
-    }
 
-    const response = await anthropic.messages.create({
-      model: options.model || 'claude-3-5-haiku-20241022',
-      max_tokens: options.maxTokens || 1000,
-      temperature: options.temperature || 0.7,
-      messages: processedMessages.map((msg: any) => ({
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content
-      }))
-    });
+      const anthropicResponse = await anthropic.messages.create({
+        model: options.model || 'claude-3-5-haiku-20241022',
+        max_tokens: options.maxTokens || 1000,
+        temperature: options.temperature || 0.7,
+        messages: processedMessages.map((msg: any) => ({
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content
+        }))
+      });
 
-    const content = response.content[0];
-    if (content.type !== 'text') {
-      throw new Error('Unexpected response type');
+      const anthropicContent = anthropicResponse.content[0];
+      if (anthropicContent.type !== 'text') {
+        throw new Error('Unexpected response type');
+      }
+
+      content = anthropicContent.text;
+      usage = {
+        promptTokens: anthropicResponse.usage.input_tokens,
+        completionTokens: anthropicResponse.usage.output_tokens,
+        totalTokens: anthropicResponse.usage.input_tokens + anthropicResponse.usage.output_tokens
+      };
+      model = anthropicResponse.model;
     }
 
     res.json({
       success: true,
       data: {
-        content: content.text,
-        usage: {
-          promptTokens: response.usage.input_tokens,
-          completionTokens: response.usage.output_tokens,
-          totalTokens: response.usage.input_tokens + response.usage.output_tokens
-        },
-        model: response.model
+        content,
+        usage,
+        model,
+        provider
       }
     });
   } catch (error: any) {
@@ -127,22 +160,19 @@ Respond only with valid JSON array, no other text:`
       }
     ];
 
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-haiku-20241022',
-      max_tokens: 1000,
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
       messages: messages.map((msg: any) => ({
-        role: msg.role as 'user' | 'assistant',
+        role: msg.role,
         content: msg.content
-      }))
+      })),
+      max_tokens: 1000,
     });
 
-    const content = response.content[0];
-    if (content.type !== 'text') {
-      throw new Error('Unexpected response type');
-    }
+    const content = completion.choices[0].message.content;
 
     try {
-      const parsed = JSON.parse(content.text);
+      const parsed = JSON.parse(content || '[]');
       const tasks = Array.isArray(parsed) ? parsed : [parsed];
       
       res.json({
@@ -173,6 +203,13 @@ app.get('/api/v1/ai/providers', simpleAuth, (req, res) => {
   res.json({
     success: true,
     data: [
+      {
+        type: 'openai',
+        name: 'OpenAI GPT',
+        description: 'GPT models by OpenAI',
+        models: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo'],
+        healthy: !!process.env.OPENAI_API_KEY
+      },
       {
         type: 'anthropic',
         name: 'Anthropic Claude',
