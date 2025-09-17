@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTaskStore } from '../stores/useTaskStore';
+import { useMarkdownStore } from '../stores/useMarkdownStore';
 
 interface ProjectFilterProps {
   selectedProjects: string[];
@@ -14,7 +14,7 @@ export const ProjectFilter: React.FC<ProjectFilterProps> = ({
   onClearAll,
   onSelectAll,
 }) => {
-  const { projects } = useTaskStore();
+  const { projects } = useMarkdownStore();
 
   const isAllSelected = selectedProjects.length === projects.length;
   const isNoneSelected = selectedProjects.length === 0;
