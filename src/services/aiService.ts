@@ -74,11 +74,19 @@ export class AIService {
   }
 }
 
-// Export singleton instance that will be configured with API key
-// Always use backend proxy in production
-const apiKey = import.meta.env.VITE_API_TOKEN || 'dev-token';
+// Create and export singleton instance
+let aiServiceInstance: AIService | null = null;
 
-export const aiService = new AIService({ 
-  apiKey,
-  provider: 'custom' // Always use secure backend proxy
-});
+export function getAIService(): AIService {
+  if (!aiServiceInstance) {
+    const apiKey = import.meta.env.VITE_API_TOKEN || 'dev-token';
+    aiServiceInstance = new AIService({ 
+      apiKey,
+      provider: 'custom' // Always use secure backend proxy
+    });
+  }
+  return aiServiceInstance;
+}
+
+// Export singleton instance for backward compatibility
+export const aiService = getAIService();

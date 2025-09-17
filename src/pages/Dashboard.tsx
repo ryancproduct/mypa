@@ -338,31 +338,7 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  if (!currentSection) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6">
-        <div className="mypa-card max-w-md w-full p-8 text-center">
-          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </div>
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
-            Ready to Start
-          </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-            No tasks for today yet. Start organizing your day by adding your first priority.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mypa-button-secondary"
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Remove empty state - always show the full interface
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">

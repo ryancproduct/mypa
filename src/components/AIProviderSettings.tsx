@@ -119,14 +119,33 @@ export const AIProviderSettings: React.FC<AIProviderSettingsProps> = ({ onClose 
         )}
       </div>
 
-      {/* Provider Selection */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-          AI Provider
-        </label>
-        <div className="space-y-2">
-          {availableProviders.map((provider) => (
-            <label key={provider.type} className="flex items-center space-x-3 cursor-pointer">
+      {/* Show different UI for secure proxy vs direct providers */}
+      {currentProvider?.name === 'Secure Proxy' ? (
+        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+          <div className="flex items-center space-x-2 mb-2">
+            <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h4 className="font-medium text-green-800 dark:text-green-200">Secure Proxy Active</h4>
+          </div>
+          <p className="text-sm text-green-700 dark:text-green-300 mb-3">
+            Your app is using the secure backend proxy. AI providers (OpenAI, Anthropic) are configured on the server - no API keys needed in your browser!
+          </p>
+          <div className="text-xs text-green-600 dark:text-green-400">
+            ✓ API keys safely stored on backend<br/>
+            ✓ No browser exposure<br/>
+            ✓ Multiple providers available
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+              AI Provider
+            </label>
+            <div className="space-y-2">
+              {availableProviders.map((provider) => (
+                <label key={provider.type} className="flex items-center space-x-3 cursor-pointer">
               <input
                 type="radio"
                 name="provider"
@@ -144,11 +163,11 @@ export const AIProviderSettings: React.FC<AIProviderSettingsProps> = ({ onClose 
                 </div>
               </div>
             </label>
-          ))}
-        </div>
-      </div>
+              ))}
+            </div>
+          </div>
 
-      {/* API Key Input */}
+          {/* API Key Input */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
           API Key
@@ -178,6 +197,8 @@ export const AIProviderSettings: React.FC<AIProviderSettingsProps> = ({ onClose 
         <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
           <p className="text-sm text-green-700 dark:text-green-400">{success}</p>
         </div>
+      )}
+        </>
       )}
 
       {/* Action Buttons */}
