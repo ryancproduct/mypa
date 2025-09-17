@@ -23,6 +23,10 @@
     "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
     "deploy:vercel": "vercel --prod",
     "test:build": "npm run type-check && npm run lint && npm run build",
+    "lighthouse": "lhci autorun",
+    "lighthouse:collect": "lhci collect",
+    "lighthouse:assert": "lhci assert",
+    "lighthouse:upload": "lhci upload",
     "prepare": "npm run type-check"
   },
   "dependencies": {
@@ -39,6 +43,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@lhci/cli": "^0.12.0",
     "@types/node": "^24.2.1",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
@@ -55,6 +60,7 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^5.4.19"
+    "vite": "^7.1.5",
+    "web-vitals": "^4.2.3"
   }
 }
