@@ -58,7 +58,6 @@ export const SideNavigation: React.FC = () => {
           <Link
             key={item.path}
             to={item.path}
-            onClick={() => console.log('Navigating to:', item.path)}
             className={`
               group relative w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200
               ${isActive
