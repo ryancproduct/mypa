@@ -75,4 +75,9 @@ export class AIService {
 }
 
 // Export singleton instance that will be configured with API key
-export const aiService = new AIService({ apiKey: '' }); // Will be configured later
+// In production, use secure proxy with JWT token
+const apiKey = import.meta.env.VITE_API_TOKEN || 'dev-token';
+export const aiService = new AIService({ 
+  apiKey,
+  provider: 'custom' // Use secure proxy by default
+});

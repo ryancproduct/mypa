@@ -8,7 +8,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run type-check && vite build",
+    "build:safe": "tsc --noEmit --skipLibCheck && vite build",
     "build:analyze": "npm run build && npx vite-bundle-analyzer dist",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -28,7 +29,8 @@
     "lighthouse:assert": "lhci assert",
     "lighthouse:upload": "lhci upload",
     
-    "prepare": "npm run type-check"
+    "prepare": "npm run type-check",
+    "postinstall": "husky install || true"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.60.0",
@@ -56,6 +58,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "husky": "^8.0.3",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "tailwindcss": "^3.4.17",

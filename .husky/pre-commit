@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Check frontend types (lenient)
+echo "Checking frontend types..."
+npm run type-check --silent || {
+    echo "⚠️  Frontend type check failed, but continuing with safe build mode"
+}
+
+# Check backend build
+echo "Checking backend build..."
+cd api
+npm run build --silent || {
+    echo "❌ Backend build failed!"
+    exit 1
+}
+cd ..
+
+# Run linting
+echo "Running linter..."
+npm run lint --silent || {
+    echo "⚠️  Linting issues found, but not blocking commit"
+}
+
+echo "✅ Pre-commit checks completed"

@@ -1,8 +1,15 @@
-import express from 'express';
+import express, { Request } from 'express';
 import Joi from 'joi';
 import { AIProxyService } from '../services/AIProxyService.js';
 import { createLogger } from '../utils/logger.js';
 import { validateRequest } from '../middleware/validation.js';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    email?: string;
+  };
+}
 
 const router = express.Router();
 const logger = createLogger();
@@ -36,7 +43,7 @@ const processCommandSchema = Joi.object({
 });
 
 // POST /api/v1/ai/generate
-router.post('/generate', validateRequest(generateResponseSchema), async (req, res, next) => {
+router.post('/generate', validateRequest(generateResponseSchema), async (req: AuthenticatedRequest, res, next) => {
   try {
     const { messages, provider = 'anthropic', options } = req.body;
     

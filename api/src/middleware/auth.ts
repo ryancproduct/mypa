@@ -65,16 +65,17 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
           token: token.substring(0, 10) + '...',
           ip: req.ip 
         });
-        return res.status(401).json({
+        res.status(401).json({
           success: false,
           error: 'Unauthorized',
           message: 'Invalid token'
         });
+        return;
       }
     }
 
     next();
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Auth middleware error', { error: error.message });
     res.status(500).json({
       success: false,

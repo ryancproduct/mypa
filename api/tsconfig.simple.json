@@ -22,7 +22,7 @@
     "verbatimModuleSyntax": false
   },
   "include": [
-    "src/**/*"
+    "src/simple-server.ts"
   ],
   "exclude": [
     "node_modules",

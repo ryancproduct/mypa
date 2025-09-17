@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import './styles/design-tokens.css';
 
 @tailwind base;
 @tailwind components;
@@ -6,85 +7,380 @@
 
 @layer base {
   body {
-    @apply font-sans antialiased text-neutral-900 bg-neutral-25;
+    @apply font-sans antialiased;
+    color: var(--color-neutral-900);
+    background-color: var(--color-neutral-25);
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  
+
   .dark body {
-    @apply text-neutral-100 bg-neutral-950;
+    color: var(--color-neutral-100);
+    background-color: var(--color-neutral-950);
+  }
+
+  /* Better focus styles */
+  *:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-card-focus);
   }
 }
 
 @layer components {
-  /* MyPA Component Styles - "Calm Command Center" */
+  /* Premium Component Styles - Modern Todo App */
   .mypa-card {
-    @apply bg-white dark:bg-neutral-800 rounded-xl shadow-elegant border border-neutral-200/50 dark:border-neutral-700/50;
-    @apply transition-all duration-200 hover:shadow-elegant-lg;
+    background-color: var(--color-neutral-0);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+    border: 1px solid rgb(var(--color-neutral-200) / 0.6);
+    transition: all var(--transition-normal);
+    backdrop-filter: blur(8px);
+  }
+
+  .dark .mypa-card {
+    background-color: var(--color-neutral-800);
+    border-color: rgb(var(--color-neutral-700) / 0.6);
+  }
+
+  .mypa-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-1px);
+  }
+
+  .mypa-card-hero {
+    background: linear-gradient(135deg,
+      rgb(var(--color-primary-50)) 0%,
+      rgb(var(--color-primary-100)) 100%);
+    border: 2px solid rgb(var(--color-primary-200) / 0.8);
+  }
+
+  .dark .mypa-card-hero {
+    background: linear-gradient(135deg,
+      rgb(var(--color-primary-900) / 0.3) 0%,
+      rgb(var(--color-primary-800) / 0.2) 100%);
+    border-color: rgb(var(--color-primary-700) / 0.6);
   }
   
   .mypa-button-primary {
-    @apply bg-primary-500 hover:bg-primary-600 text-white px-4 py-2.5 rounded-lg font-medium;
-    @apply transition-all duration-200 shadow-sm hover:shadow-md;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    background-color: var(--color-primary-500);
+    color: white;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    border: none;
+    cursor: pointer;
+  }
+
+  .mypa-button-primary:hover {
+    background-color: var(--color-primary-600);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .mypa-button-primary:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
   }
   
   .mypa-button-secondary {
-    @apply bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-600;
-    @apply text-neutral-700 dark:text-neutral-200 px-4 py-2.5 rounded-lg font-medium;
-    @apply transition-all duration-200 shadow-sm hover:shadow-md;
-    @apply focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2;
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    border: 1px solid rgb(var(--color-neutral-200) / 0.8);
+    cursor: pointer;
+  }
+
+  .dark .mypa-button-secondary {
+    background-color: var(--color-neutral-700);
+    color: var(--color-neutral-200);
+    border-color: rgb(var(--color-neutral-600) / 0.8);
+  }
+
+  .mypa-button-secondary:hover {
+    background-color: var(--color-neutral-200);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .dark .mypa-button-secondary:hover {
+    background-color: var(--color-neutral-600);
   }
   
   .mypa-input {
-    @apply w-full px-4 py-3 rounded-lg border border-neutral-200 dark:border-neutral-700;
-    @apply bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100;
-    @apply placeholder-neutral-500 dark:placeholder-neutral-400;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
-    @apply transition-all duration-200;
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgb(var(--color-neutral-200) / 0.8);
+    background-color: var(--color-neutral-0);
+    color: var(--color-neutral-900);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .dark .mypa-input {
+    background-color: var(--color-neutral-800);
+    color: var(--color-neutral-100);
+    border-color: rgb(var(--color-neutral-700) / 0.8);
+  }
+
+  .mypa-input::placeholder {
+    color: var(--color-neutral-500);
+  }
+
+  .dark .mypa-input::placeholder {
+    color: var(--color-neutral-400);
+  }
+
+  .mypa-input:focus {
+    border-color: var(--color-primary-500);
+    box-shadow: var(--shadow-card-focus);
   }
   
   .mypa-section-header {
-    @apply text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4;
-    @apply flex items-center justify-between;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-neutral-900);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    line-height: var(--line-height-tight);
+  }
+
+  .dark .mypa-section-header {
+    color: var(--color-neutral-100);
+  }
+
+  .mypa-section-header-hero {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary-900);
+    margin-bottom: var(--space-6);
+  }
+
+  .dark .mypa-section-header-hero {
+    color: var(--color-primary-100);
   }
   
   .mypa-task-item {
-    @apply flex items-start space-x-3 p-3 rounded-lg;
-    @apply hover:bg-neutral-50 dark:hover:bg-neutral-800/50;
-    @apply transition-all duration-150;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-fast);
+    position: relative;
+  }
+
+  .mypa-task-item:hover {
+    background-color: rgb(var(--color-neutral-50) / 0.8);
+  }
+
+  .dark .mypa-task-item:hover {
+    background-color: rgb(var(--color-neutral-800) / 0.5);
+  }
+
+  .mypa-task-item-priority {
+    border-left: 3px solid var(--color-primary-500);
+    padding-left: var(--space-4);
+    background: linear-gradient(90deg,
+      rgb(var(--color-primary-50) / 0.3) 0%,
+      transparent 100%);
+  }
+
+  .dark .mypa-task-item-priority {
+    background: linear-gradient(90deg,
+      rgb(var(--color-primary-900) / 0.2) 0%,
+      transparent 100%);
   }
   
   .mypa-priority-indicator {
-    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.025em;
   }
-  
+
   .mypa-priority-p1 {
-    @apply bg-red-50 text-red-600 dark:bg-red-500/20 dark:text-red-400;
+    background-color: var(--color-priority-p1-bg);
+    color: var(--color-priority-p1);
+    border: 1px solid rgb(var(--color-priority-p1) / 0.2);
   }
-  
+
   .mypa-priority-p2 {
-    @apply bg-amber-50 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400;
+    background-color: var(--color-priority-p2-bg);
+    color: var(--color-priority-p2);
+    border: 1px solid rgb(var(--color-priority-p2) / 0.2);
   }
-  
+
   .mypa-priority-p3 {
-    @apply bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400;
+    background-color: var(--color-priority-p3-bg);
+    color: var(--color-priority-p3);
+    border: 1px solid rgb(var(--color-priority-p3) / 0.2);
   }
   
   .mypa-project-tag {
-    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
-    @apply bg-neutral-100 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300;
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+    border: 1px solid rgb(var(--color-neutral-200) / 0.8);
+  }
+
+  .dark .mypa-project-tag {
+    background-color: var(--color-neutral-700);
+    color: var(--color-neutral-300);
+    border-color: rgb(var(--color-neutral-600) / 0.8);
   }
   
   .mypa-status-indicator {
-    @apply inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
   }
-  
+
   .mypa-status-sync {
-    @apply bg-green-50 text-green-600 dark:bg-green-500/20 dark:text-green-400;
+    background-color: var(--color-success-50);
+    color: var(--color-success-600);
+    border: 1px solid rgb(var(--color-success-500) / 0.2);
   }
-  
+
+  .dark .mypa-status-sync {
+    background-color: rgb(var(--color-success-500) / 0.1);
+    color: var(--color-success-400);
+  }
+
   .mypa-status-offline {
-    @apply bg-amber-50 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400;
+    background-color: var(--color-warning-50);
+    color: var(--color-warning-600);
+    border: 1px solid rgb(var(--color-warning-500) / 0.2);
+  }
+
+  .dark .mypa-status-offline {
+    background-color: rgb(var(--color-warning-500) / 0.1);
+    color: var(--color-warning-400);
+  }
+
+  /* Premium Badge Styles */
+  .mypa-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-600);
+    border: 1px solid rgb(var(--color-neutral-200) / 0.8);
+  }
+
+  .dark .mypa-badge {
+    background-color: var(--color-neutral-700);
+    color: var(--color-neutral-300);
+    border-color: rgb(var(--color-neutral-600) / 0.8);
+  }
+
+  /* Premium Status Badges */
+  .mypa-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    border: 1px solid;
+  }
+
+  .mypa-status-overdue {
+    background-color: var(--color-danger-50);
+    color: var(--color-danger-700);
+    border-color: rgb(var(--color-danger-500) / 0.3);
+  }
+
+  .dark .mypa-status-overdue {
+    background-color: rgb(var(--color-danger-500) / 0.1);
+    color: var(--color-danger-400);
+  }
+
+  .mypa-status-due-today {
+    background-color: var(--color-warning-50);
+    color: var(--color-warning-700);
+    border-color: rgb(var(--color-warning-500) / 0.3);
+  }
+
+  .dark .mypa-status-due-today {
+    background-color: rgb(var(--color-warning-500) / 0.1);
+    color: var(--color-warning-400);
+  }
+
+  /* Glass morphism effects */
+  .mypa-glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .mypa-glass {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Improved scrollbars */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-neutral-300) transparent;
+  }
+
+  .dark .scrollbar-thin {
+    scrollbar-color: var(--color-neutral-600) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--color-neutral-300);
+    border-radius: var(--radius-full);
+  }
+
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--color-neutral-600);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-neutral-400);
+  }
+
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-neutral-500);
   }
 
   /* Accessibility utility classes */
