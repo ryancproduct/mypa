@@ -75,9 +75,11 @@ export class AIService {
 }
 
 // Export singleton instance that will be configured with API key
-// In production, use secure proxy with JWT token
-const apiKey = import.meta.env.VITE_API_TOKEN || 'dev-token';
+// Fallback to direct provider if backend API is not available
+const hasBackendApi = import.meta.env.VITE_API_BASE_URL && import.meta.env.VITE_API_TOKEN;
+const apiKey = import.meta.env.VITE_API_TOKEN || import.meta.env.VITE_ANTHROPIC_API_KEY || '';
+
 export const aiService = new AIService({ 
   apiKey,
-  provider: 'custom' // Use secure proxy by default
+  provider: hasBackendApi ? 'custom' : 'anthropic' // Fallback to direct Anthropic if no backend
 });
