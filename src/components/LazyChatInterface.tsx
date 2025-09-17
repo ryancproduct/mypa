@@ -1,12 +1,13 @@
 import React, { Suspense, lazy } from 'react';
 import { ChatInterfaceSkeleton } from './LoadingSkeleton';
 import { ErrorBoundary } from './ErrorBoundary';
+import type { TaskSuggestion } from '../services/backendService';
 
 // Lazy load the ChatInterface component
 const ChatInterface = lazy(() => import('./ChatInterface').then(module => ({ default: module.ChatInterface })));
 
 interface LazyChatInterfaceProps {
-  onTasksCreated?: (tasks: any[]) => void;
+  onTasksCreated?: (tasks: TaskSuggestion[]) => void;
   className?: string;
 }
 

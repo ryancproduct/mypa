@@ -188,12 +188,12 @@ export class SecureStorage {
   /**
    * Migrates existing plain-text API key to encrypted storage
    */
-  static async migrateApiKey(): Promise<boolean> {
+  static async migrateApiKey(storageKey: string = 'anthropic_api_key'): Promise<boolean> {
     try {
-      const existingKey = localStorage.getItem('anthropic_api_key');
-      if (existingKey && !this.hasItem('anthropic_api_key')) {
-        await this.setItem('anthropic_api_key', existingKey);
-        localStorage.removeItem('anthropic_api_key'); // Remove plain-text version
+      const existingKey = localStorage.getItem(storageKey);
+      if (existingKey && !this.hasItem(storageKey)) {
+        await this.setItem(storageKey, existingKey);
+        localStorage.removeItem(storageKey); // Remove plain-text version
         return true;
       }
       return false;

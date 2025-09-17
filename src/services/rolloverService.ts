@@ -1,6 +1,6 @@
 import type { Task, DailySection } from '../types';
 import { isOverdue, isDueToday } from '../utils/dateUtils';
-import { aiService } from './aiService';
+import { backendService, type AIContextInput } from './backendService';
 
 interface RolloverResult {
   newTasks: Task[];
@@ -25,7 +25,14 @@ export class RolloverService {
 
     try {
       // Get AI insights for smart rollover decisions
-      const aiInsights = await aiService.processNaturalLanguageCommand(
+      const context: AIContextInput = {
+        currentTasks: allTasks,
+        projects: [],
+        currentDate,
+        dailySection: previousSection ?? undefined,
+      };
+
+      const aiInsights = await backendService.processCommand(
         `Analyze these ${basicRollover.newTasks.length} rolled-over tasks and provide smart insights:
         
         Tasks: ${basicRollover.newTasks.map(t => `"${t.content.replace('⏭ ', '')}" (${t.priority || 'no priority'}, due: ${t.dueDate || 'no date'})`).join(', ')}
@@ -34,7 +41,7 @@ export class RolloverService {
         Due today: ${basicRollover.dueTodayCount}
         
         Provide actionable suggestions for prioritizing and organizing these tasks for maximum productivity.`
-      );
+      , context);
 
       return {
         ...basicRollover,

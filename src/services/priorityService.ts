@@ -1,6 +1,6 @@
 import type { Task, DailySection } from '../types';
 import { getTaskUrgency, isOverdue, isDueToday } from '../utils/dateUtils';
-import { aiService } from './aiService';
+import { backendService, type AIContextInput } from './backendService';
 
 interface PrioritySuggestion {
   taskId: string;
@@ -168,7 +168,7 @@ export class PriorityService {
 
   private static async getAIInsights(
     currentSection: DailySection,
-    _allTasks: Task[]
+    allTasks: Task[]
   ): Promise<string> {
     const pendingTasks = [
       ...currentSection.priorities,
@@ -184,7 +184,14 @@ export class PriorityService {
       `"${task.content}" (${task.priority || 'no priority'}, due: ${task.dueDate || 'no date'}, project: ${task.project || 'none'})`
     ).join(', ');
 
-    const result = await aiService.processNaturalLanguageCommand(
+    const context: AIContextInput = {
+      currentTasks: allTasks,
+      projects: [],
+      currentDate: currentSection.date,
+      dailySection: currentSection,
+    };
+
+    const result = await backendService.processCommand(
       `Analyze this workload and provide strategic priority recommendations:
 
       Pending tasks: ${taskSummary}
@@ -198,7 +205,8 @@ export class PriorityService {
       2. How to organize the day for maximum productivity
       3. Any tasks that could be deferred or delegated
       
-      Keep it concise and actionable.`
+      Keep it concise and actionable.`,
+      context
     );
 
     return result.response || 'Focus on completing high-priority and overdue tasks first.';
@@ -212,7 +220,13 @@ export class PriorityService {
         `"${t.content}" (current: ${t.priority || 'none'}, due: ${t.dueDate || 'none'})`
       ).join(', ');
 
-      const result = await aiService.processNaturalLanguageCommand(
+      const context: AIContextInput = {
+        currentTasks: tasks,
+        projects: [],
+        currentDate: new Date().toISOString().split('T')[0],
+      };
+
+      const result = await backendService.processCommand(
         `Given these tasks: ${taskDescriptions}
         
         Suggest optimal P1/P2/P3 priorities considering:
@@ -221,7 +235,8 @@ export class PriorityService {
         - Energy levels throughout the day
         - Project importance
         
-        Provide specific recommendations for priority assignments.`
+        Provide specific recommendations for priority assignments.`,
+        context
       );
 
       return result.response || 'Consider prioritizing by urgency and impact.';
