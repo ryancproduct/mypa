@@ -64,7 +64,7 @@ class AppService {
   }
 
   // Install prompt for "Add to Home Screen"
-  private deferredPrompt: any = null;
+  private deferredPrompt: (Event & { prompt?: () => Promise<void>; userChoice?: Promise<{ outcome: string }> }) | null = null;
 
   initInstallPrompt() {
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -85,8 +85,11 @@ class AppService {
       return false;
     }
 
-    this.deferredPrompt.prompt();
-    const { outcome } = await this.deferredPrompt.userChoice;
+    if (this.deferredPrompt.prompt) {
+      this.deferredPrompt.prompt();
+    }
+    const userChoice = await this.deferredPrompt.userChoice;
+    const outcome = userChoice?.outcome || 'dismissed';
     console.log(`User response to the install prompt: ${outcome}`);
     
     this.deferredPrompt = null;

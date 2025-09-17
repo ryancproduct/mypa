@@ -1,7 +1,8 @@
-import type { Task, DailySection, Note, Blocker } from '../types';
+import type { Task, DailySection, Note, Blocker, Project } from '../types';
 
 export interface ParsedMarkdown {
   sections: DailySection[];
+  projects: Project[];
 }
 
 export const parseMarkdownContent = (content: string): ParsedMarkdown => {
@@ -115,7 +116,31 @@ export const parseMarkdownContent = (content: string): ParsedMarkdown => {
     sections.push(currentSection);
   }
 
-  return { sections };
+  // Extract projects from tasks
+  const projects: Project[] = [];
+  const projectTags = new Set<string>();
+
+  sections.forEach(section => {
+    [...section.priorities, ...section.schedule, ...section.followUps, ...section.completed].forEach(task => {
+      if (task.project) {
+        projectTags.add(task.project);
+      }
+    });
+  });
+
+  // Convert project tags to Project objects with predefined colors
+  const projectColors = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16', '#f97316'];
+
+  Array.from(projectTags).forEach((tag, index) => {
+    projects.push({
+      id: `project-${index}`,
+      name: tag.replace('#', ''),
+      tag,
+      color: projectColors[index % projectColors.length]
+    });
+  });
+
+  return { sections, projects };
 };
 
 const parseTaskLine = (line: string): Task | null => {
@@ -170,7 +195,7 @@ const parseTaskLine = (line: string): Task | null => {
   };
 };
 
-export const exportToMarkdown = (sections: DailySection[]): string => {
+export const exportToMarkdown = (sections: DailySection[], projects?: Project[]): string => {
   let markdown = '';
 
   sections.forEach((section) => {

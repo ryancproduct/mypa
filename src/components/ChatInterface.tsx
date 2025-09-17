@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { backendService, configureBackend, type AIContextInput, type TaskSuggestion } from '../services/backendService';
+import { localTaskParser } from '../services/localTaskParser';
 import { SecureStorage } from '../services/secureStorage';
 import { useMarkdownStore } from '../stores/useMarkdownStore';
 
@@ -18,16 +19,19 @@ interface ChatInterfaceProps {
 
 const BACKEND_AVAILABLE = Boolean(import.meta.env.VITE_API_BASE_URL);
 const BACKEND_BASE_URL = BACKEND_AVAILABLE ? String(import.meta.env.VITE_API_BASE_URL) : undefined;
-const API_KEY_STORAGE_KEY = BACKEND_AVAILABLE ? 'mypa_api_key' : 'anthropic_api_key';
-const ASSISTANT_NAME = BACKEND_AVAILABLE ? 'MyPA' : 'Claude';
-const API_KEY_LABEL = BACKEND_AVAILABLE ? 'MyPA API key' : 'Anthropic API key';
-const API_KEY_DESCRIPTION = BACKEND_AVAILABLE
-  ? 'Enter your MyPA API key to enable secure AI-powered task management.'
-  : 'Enter your Anthropic API key to enable AI-powered task management.';
-const API_KEY_PLACEHOLDER = BACKEND_AVAILABLE ? 'pk-mypa-...' : 'sk-ant-...';
-const INITIAL_GREETING = BACKEND_AVAILABLE
-  ? `Hi! I'm ${ASSISTANT_NAME}, your AI productivity assistant. I connect through the secure MyPA API to help you manage tasks, schedule commitments, and follow-ups. Try asking for a daily summary or to add a new task.`
-  : `Hi! I'm ${ASSISTANT_NAME}, your AI productivity assistant. I can help you manage tasks, schedule meetings, and organize your day. Try saying something like "Add meeting with Sarah tomorrow" or "Show me overdue tasks".`;
+const API_KEY_STORAGE_KEY = 'openai_api_key'; // Always use OpenAI
+const ASSISTANT_NAME = 'ChatGPT Assistant';
+const API_KEY_LABEL = 'OpenAI API Key';
+const API_KEY_DESCRIPTION = 'Enter your OpenAI API key to enable AI-powered task management with ChatGPT.';
+const API_KEY_PLACEHOLDER = 'sk-proj-...';
+const INITIAL_GREETING = `Hi! I'm your ChatGPT-powered task assistant. I can help you create and manage tasks naturally. Try saying:
+
+• "Add a task to review the quarterly report for the DataTables project"
+• "Create an urgent meeting with the team tomorrow"
+• "Schedule a follow-up call with Sarah next Friday"
+• "Add a priority task to fix the dashboard bug"
+
+I'll understand your request and create properly organized tasks with the right projects, priorities, and due dates!`;
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onTasksCreated, className = '' }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -65,9 +69,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onTasksCreated, cl
         if (storedKey) {
           setApiKey(storedKey);
           setShowApiKeySetup(false);
-          configureBackend({ apiKey: storedKey });
-        } else {
-          configureBackend({ apiKey: undefined });
+          // Configure AI service for OpenAI
+          await aiService.reconfigure(storedKey, 'openai');
         }
       } catch (error) {
         console.error('Failed to load API key:', error);
@@ -95,11 +98,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onTasksCreated, cl
 
     try {
       await SecureStorage.setItem(API_KEY_STORAGE_KEY, apiKey.trim());
-      configureBackend({
-        baseUrl: BACKEND_BASE_URL,
-        mode: BACKEND_AVAILABLE ? 'production' : 'development',
-        apiKey: apiKey.trim(),
-      });
+      // Configure AI service for OpenAI
+      await aiService.reconfigure(apiKey.trim(), 'openai');
       setShowApiKeySetup(false);
       setShowKeyManager(false);
     } catch (error) {
@@ -144,8 +144,26 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onTasksCreated, cl
     setIsLoading(true);
 
     try {
-      const context = buildContext();
-      const result = await backendService.processCommand(trimmedInput, context);
+      let result;
+
+      if (apiKey) {
+        // Configure AI service to use OpenAI
+        await aiService.reconfigure(apiKey, 'openai');
+
+        // Use the context
+        const context = buildContext();
+        aiService.updateContext({
+          currentTasks: context.currentTasks,
+          projects: context.projects,
+          currentDate: context.currentDate,
+          dailySection: context.dailySection,
+        });
+
+        // Process the command with AI
+        result = await aiService.processNaturalLanguageCommand(trimmedInput);
+      } else {
+        throw new Error('OpenAI API key required');
+      }
 
       let assistantResponse = result.response || 'I processed your request.';
 

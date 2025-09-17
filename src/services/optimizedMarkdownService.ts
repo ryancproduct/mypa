@@ -27,7 +27,13 @@ class OptimizedMarkdownService {
 
   async connectToFile(): Promise<boolean> {
     try {
-      [this.fileHandle] = await window.showOpenFilePicker({
+      // Type assertion for File System Access API
+      const showOpenFilePicker = (window as Window & { showOpenFilePicker?: Function }).showOpenFilePicker;
+      if (!showOpenFilePicker) {
+        throw new Error('File System Access API not supported');
+      }
+      
+      [this.fileHandle] = await showOpenFilePicker({
         types: [{
           description: 'Markdown files',
           accept: { 'text/markdown': ['.md'] }
@@ -120,7 +126,7 @@ class OptimizedMarkdownService {
     }
 
     // Update task in cache
-    let taskFound = false;
+    const taskFound = false;
     const updatedSections = this.cache.sections.map(section => ({
       ...section,
       priorities: section.priorities.map(task => 

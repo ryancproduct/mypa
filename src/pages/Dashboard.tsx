@@ -10,7 +10,7 @@ import { ProjectFilter } from '../components/ProjectFilter';
 import { StatusIndicator } from '../components/StatusIndicator';
 import { FloatingActionButton } from '../components/FloatingActionButton';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { LazyChatInterface } from '../components/LazyChatInterface';
+import { SimpleAIChat } from '../components/SimpleAIChat';
 import { AdvancedSearch } from '../components/AdvancedSearch';
 import { DraggableSection } from '../components/DraggableSection';
 import { DashboardCustomizer } from '../components/DashboardCustomizer';
@@ -200,7 +200,7 @@ const Dashboard: React.FC = () => {
                 Claude
               </span>
             </h3>
-            <LazyChatInterface />
+            <SimpleAIChat />
           </section>
         );
 
@@ -342,7 +342,8 @@ const Dashboard: React.FC = () => {
   // Remove empty state - always show the full interface
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
+    <div className="flex-1 h-full overflow-y-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
       <header className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
@@ -455,6 +456,7 @@ const Dashboard: React.FC = () => {
         <div className="backdrop-blur-sm bg-white/80 dark:bg-neutral-800/80 rounded-lg shadow-premium border border-neutral-200/50 dark:border-neutral-700/50">
           <StatusIndicator className="!text-xs !px-3 !py-2" />
         </div>
+      </div>
       </div>
     </div>
   );
