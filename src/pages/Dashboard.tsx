@@ -118,7 +118,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
       <header className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
@@ -236,9 +236,9 @@ const Dashboard: React.FC = () => {
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary-300/10 to-transparent rounded-bl-full pointer-events-none"></div>
       </section>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-6 lg:gap-8">
         {/* LEFT COLUMN - Urgent & Time-Sensitive */}
-        <div className="space-y-6">
+        <div className="space-y-6 lg:col-span-2 xl:col-span-3">
           {/* Due Today / Overdue - High Priority Visual Treatment */}
           {(currentSection?.schedule || []).some(task =>
             task.dueDate && (new Date(task.dueDate) <= new Date() || task.dueDate === new Date().toISOString().split('T')[0])
@@ -299,7 +299,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* RIGHT COLUMN - Support & Secondary Functions */}
-        <div className="space-y-6">
+        <div className="space-y-6 lg:col-span-1 xl:col-span-2">
           {/* AI Assistant - Supporting Role */}
           <section className="mypa-card animate-slide-up p-6 bg-gradient-to-br from-primary-50/50 to-transparent dark:from-primary-900/10 dark:to-transparent">
             <h3 className="mypa-section-header">
@@ -353,10 +353,10 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* BOTTOM SECTION - Completed Tasks & Projects Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8 mt-8">
         {/* Completed Tasks - Collapsible lower priority */}
         {currentSection?.completed.length > 0 && (
-          <section className="mypa-card animate-slide-up p-6 opacity-80 hover:opacity-100 transition-all duration-300 hover:shadow-premium-lg">
+          <section className="mypa-card animate-slide-up p-6 opacity-80 hover:opacity-100 transition-all duration-300 hover:shadow-premium-lg lg:col-span-3">
             <h3 className="mypa-section-header">
               <span className="flex items-center gap-3">
                 <div className="w-6 h-6 bg-success-500 rounded-md flex items-center justify-center">
@@ -387,7 +387,7 @@ const Dashboard: React.FC = () => {
         )}
 
         {/* Projects Overview - Reference Information */}
-        <section className="mypa-card animate-slide-up p-6 hover:shadow-premium-lg transition-all duration-300">
+        <section className="mypa-card animate-slide-up p-6 hover:shadow-premium-lg transition-all duration-300 lg:col-span-2">
           <h3 className="mypa-section-header">
             <span className="flex items-center gap-3">
               <div className="w-6 h-6 bg-neutral-200 dark:bg-neutral-600 rounded-md flex items-center justify-center">
