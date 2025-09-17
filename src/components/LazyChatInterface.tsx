@@ -9,7 +9,7 @@ interface LazyChatInterfaceProps {
 
 export const LazyChatInterface: React.FC<LazyChatInterfaceProps> = () => {
   return (
-    <div className="mypa-card h-96">
+    <div className="h-96 flex flex-col">
       <SimpleChatInterface />
     </div>
   );

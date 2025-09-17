@@ -57,7 +57,7 @@ export const SimpleChatInterface: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-4xl mx-auto bg-white dark:bg-neutral-900">
+    <div className="flex flex-col h-full bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700">
       {/* Header */}
       <div className="flex-shrink-0 p-4 border-b border-neutral-200 dark:border-neutral-700">
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
