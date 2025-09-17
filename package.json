@@ -22,6 +22,7 @@
     "reinstall": "npm run clean && npm install",
     "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
     "deploy:vercel": "vercel --prod",
+    "vercel-build": "npm run build --force",
     "test:build": "npm run type-check && npm run lint && npm run build",
     "lighthouse": "lhci autorun",
     "lighthouse:collect": "lhci collect",
