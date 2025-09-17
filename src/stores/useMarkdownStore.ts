@@ -87,6 +87,7 @@ export const useMarkdownStore = create<MarkdownTaskStore>((set, get) => ({
   },
 
   connectToFile: async () => {
+    console.log('connectToFile called');
     set({ loading: true, error: null });
     try {
       const success = await fileSystemService.requestFileAccess();
@@ -105,6 +106,7 @@ export const useMarkdownStore = create<MarkdownTaskStore>((set, get) => ({
   },
 
   loadFromFile: async () => {
+    console.log('loadFromFile called');
     set({ loading: true, error: null });
     try {
       const content = await fileSystemService.readTodoFile();

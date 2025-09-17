@@ -2,7 +2,6 @@ import Dashboard from './pages/Dashboard';
 import { PWAPrompt } from './components/PWAPrompt';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
-import { FileConnection } from './components/FileConnection';
 
 function App() {
   return (
@@ -17,9 +16,6 @@ function App() {
     >
       <ToastProvider position="top-right" maxToasts={5}>
         <div className="min-h-screen bg-neutral-25 dark:bg-neutral-950 transition-colors duration-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <FileConnection />
-          </div>
           <ErrorBoundary
             fallback={
               <div className="flex flex-col items-center justify-center min-h-screen p-6">
