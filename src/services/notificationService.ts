@@ -1,4 +1,9 @@
-import { pwaService } from './pwaService';
+import type { PWAService } from './pwaService';
+
+let pwaServiceInstance: PWAService;
+export function setPwaService(instance: PWAService) {
+  pwaServiceInstance = instance;
+}
 import type { Task } from '../types';
 import { isOverdue, isDueToday } from '../utils/dateUtils';
 
@@ -18,7 +23,7 @@ export class NotificationService {
   private scheduledNotifications = new Map<string, NodeJS.Timeout>();
   
   async initialize(): Promise<boolean> {
-    const permission = await pwaService.requestNotificationPermission();
+    const permission = await pwaServiceInstance.requestNotificationPermission();
     return permission === 'granted';
   }
 
@@ -37,7 +42,7 @@ export class NotificationService {
       requireInteraction: true
     };
 
-    await pwaService.showNotification(options.title, options);
+    await this.pwaService.showNotification(options.title, options);
   }
 
   async showDailyDigest(tasks: Task[]): Promise<void> {
@@ -68,7 +73,7 @@ export class NotificationService {
       badge: '/icon-192x192.svg'
     };
 
-    await pwaService.showNotification(options.title, options);
+    await this.pwaService.showNotification(options.title, options);
   }
 
   async showOverdueAlert(tasks: Task[]): Promise<void> {
@@ -76,7 +81,7 @@ export class NotificationService {
 
     const options: NotificationOptions = {
       title: '⚠️ Overdue Tasks Alert',
-      body: `You have ${tasks.length} overdue task${tasks.length > 1 ? 's' : ''} that need attention.`,
+      body: `You have ${tasks.length} overdue task${tasks.length > 1 ? 's' : ''} that need attention.`, 
       tag: 'overdue-alert',
       data: { type: 'overdue-alert', taskIds: tasks.map(t => t.id) },
       actions: [
@@ -88,7 +93,7 @@ export class NotificationService {
       requireInteraction: true
     };
 
-    await pwaService.showNotification(options.title, options);
+    await this.pwaService.showNotification(options.title, options);
   }
 
   scheduleTaskReminder(task: Task): void {
@@ -229,4 +234,5 @@ export class NotificationService {
 }
 
 // Global notification service instance
-export const notificationService = new NotificationService();
+export const notificationService = new NotificationService(pwaService);
+
