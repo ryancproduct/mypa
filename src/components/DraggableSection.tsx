@@ -1,5 +1,6 @@
 import React, { ReactNode, useState } from 'react';
-import { useDashboardStore, DashboardSection } from '../stores/useDashboardStore';
+import { useDashboardStore } from '../stores/useDashboardStore';
+import type { DashboardSection } from '../stores/useDashboardStore';
 
 interface DraggableSectionProps {
   section: DashboardSection;

@@ -326,6 +326,32 @@
 
 ## 🧱 Blockers
 
+---
+
+# 2025-09-17 (Local: Australia/Sydney)
+
+## 📌 Priorities (Top 3 max)
+- [ ] Review and improve PWA notes application design and functionality #PWA
+- [ ] Test dashboard customization and drag-and-drop features #PWA
+- [ ] Verify markdown file integration and data loading #PWA
+
+## 📅 Schedule
+- [ ] Continue PWA development improvements
+- [ ] Test file system integration
+- [ ] Validate current date functionality
+
+## 🔄 Follow-ups
+
+## 🧠 Notes & Ideas
+- **Recurring:**
+  - Weekly email due every Thursday morning
+  - Review Productboard feedback (Thursdays)
+  - Fill in Atlas projects (Thursdays)
+
+## ✅ Completed
+
+## 🧱 Blockers
+
 --- 
 **EoD Summary (2025-08-18)**
 - Wins: • Organized daily rollover system • Cleared task backlog from weekend gap
@@ -406,6 +432,32 @@
 - Template settings concern: by default making everything mandatory with everything on - need to fix
 - Consider excluding larger accounts from lone worker rollover
 - **Recurring:** 
+  - Weekly email due every Thursday morning
+  - Review Productboard feedback (Thursdays)
+  - Fill in Atlas projects (Thursdays)
+
+## ✅ Completed
+
+## 🧱 Blockers
+
+---
+
+# 2025-09-17 (Local: Australia/Sydney)
+
+## 📌 Priorities (Top 3 max)
+- [ ] Review and improve PWA notes application design and functionality #PWA
+- [ ] Test dashboard customization and drag-and-drop features #PWA
+- [ ] Verify markdown file integration and data loading #PWA
+
+## 📅 Schedule
+- [ ] Continue PWA development improvements
+- [ ] Test file system integration
+- [ ] Validate current date functionality
+
+## 🔄 Follow-ups
+
+## 🧠 Notes & Ideas
+- **Recurring:**
   - Weekly email due every Thursday morning
   - Review Productboard feedback (Thursdays)
   - Fill in Atlas projects (Thursdays)
@@ -570,6 +622,32 @@
 
 ## 🧠 Notes & Ideas
 - **Recurring:** 
+  - Weekly email due every Thursday morning
+  - Review Productboard feedback (Thursdays)
+  - Fill in Atlas projects (Thursdays)
+
+## ✅ Completed
+
+## 🧱 Blockers
+
+---
+
+# 2025-09-17 (Local: Australia/Sydney)
+
+## 📌 Priorities (Top 3 max)
+- [ ] Review and improve PWA notes application design and functionality #PWA
+- [ ] Test dashboard customization and drag-and-drop features #PWA
+- [ ] Verify markdown file integration and data loading #PWA
+
+## 📅 Schedule
+- [ ] Continue PWA development improvements
+- [ ] Test file system integration
+- [ ] Validate current date functionality
+
+## 🔄 Follow-ups
+
+## 🧠 Notes & Ideas
+- **Recurring:**
   - Weekly email due every Thursday morning
   - Review Productboard feedback (Thursdays)
   - Fill in Atlas projects (Thursdays)
