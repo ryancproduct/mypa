@@ -1,11 +1,30 @@
-# React + TypeScript + Vite
+# MyPA Notes PWA
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AI-powered personal productivity assistant with secure backend architecture.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Daily Task Management**: Priorities, schedule, and follow-ups
+- **AI Assistant**: Claude and OpenAI integration for smart task parsing
+- **Secure Architecture**: Backend proxy eliminates API key exposure
+- **Offline Support**: PWA with service worker caching
+- **Cross-Platform**: Works on desktop and mobile
+- **Real-time Sync**: Supabase integration for data persistence
+
+## 🏗️ Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Backend API   │    │  AI Providers   │
+│   (React PWA)   │    │   (Node.js)     │    │  (Anthropic,    │
+│                 │    │                 │    │   OpenAI)       │
+│ ┌─────────────┐ │    │ ┌─────────────┐ │    │                 │
+│ │ ProxyProvider│◄┼────┼►│ AIProxyService│◄┼────┼►                │
+│ └─────────────┘ │    │ └─────────────┘ │    │                 │
+│                 │    │                 │    │                 │
+│ JWT Token Only  │    │ API Keys Stored │    │ Direct API Calls│
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
 ## Expanding the ESLint configuration
 

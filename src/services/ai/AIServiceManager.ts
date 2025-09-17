@@ -12,6 +12,7 @@ import type {
 
 import { AnthropicProvider } from './providers/AnthropicProvider';
 import { OpenAIProvider } from './providers/OpenAIProvider';
+import { ProxyProvider } from './providers/ProxyProvider';
 
 /**
  * Central AI service that manages multiple AI providers
@@ -30,6 +31,7 @@ export class AIServiceManager {
     // Register available providers
     this.registerProvider('anthropic', new AnthropicProvider());
     this.registerProvider('openai', new OpenAIProvider());
+    this.registerProvider('custom', new ProxyProvider()); // Secure proxy provider
   }
 
   /**

@@ -82,12 +82,14 @@ export const mode = import.meta.env.MODE;
 
 // API Configuration
 export const apiConfig = {
-  // Note: Anthropic API keys are managed through secure storage
-  // This is only for development/testing fallbacks
-  anthropicApiKey: import.meta.env.VITE_ANTHROPIC_API_KEY || '',
+  // Backend API configuration (secure proxy)
+  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001',
   
-  // API endpoints (if using backend proxy in the future)
-  baseUrl: import.meta.env.VITE_API_BASE_URL || '',
+  // JWT token for backend authentication (replaces direct API keys)
+  apiToken: import.meta.env.VITE_API_TOKEN || '',
+  
+  // Legacy: Direct API keys (deprecated - use backend proxy instead)
+  anthropicApiKey: import.meta.env.VITE_ANTHROPIC_API_KEY || '',
   timeout: parseNumber(import.meta.env.VITE_API_TIMEOUT, 30000),
 };
 

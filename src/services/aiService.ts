@@ -18,10 +18,15 @@ export class AIService {
   }
 
   async initialize(config: AIServiceConfig) {
-    const provider = config.provider || 'anthropic';
-    await aiServiceManager.setActiveProvider(provider, {
-      apiKey: config.apiKey
-    });
+    // Use secure proxy by default in production, direct providers in development
+    const provider = config.provider || (import.meta.env.PROD ? 'custom' : 'anthropic');
+    
+    const providerConfig = {
+      apiKey: config.apiKey,
+      baseUrl: import.meta.env.VITE_API_BASE_URL
+    };
+    
+    await aiServiceManager.setActiveProvider(provider, providerConfig);
   }
 
   async reconfigure(apiKey: string, provider?: AIProviderType) {
