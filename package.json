@@ -27,6 +27,7 @@
     "lighthouse:collect": "lhci collect",
     "lighthouse:assert": "lhci assert",
     "lighthouse:upload": "lhci upload",
+    "postinstall": "node scripts/install-rollup-native.cjs",
     "prepare": "npm run type-check"
   },
   "dependencies": {
@@ -48,7 +49,6 @@
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^4.7.0",
-    "@rollup/rollup-linux-x64-gnu": "^4.50.2",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",
