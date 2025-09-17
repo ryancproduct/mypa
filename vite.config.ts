@@ -160,4 +160,39 @@ export default defineConfig({
       }
     })
   ],
+  // Performance optimizations
+  build: {
+    // Enable minification and compression
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    // Optimize chunks
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunk for large dependencies
+          vendor: ['react', 'react-dom'],
+          // AI services chunk (can be lazy loaded)
+          ai: ['@anthropic-ai/sdk'],
+          // UI components chunk
+          ui: ['zustand']
+        },
+      },
+    },
+    // Target modern browsers for better optimization
+    target: 'esnext',
+    // Source maps only in development
+    sourcemap: process.env.NODE_ENV === 'development',
+  },
+  // Optimize assets
+  assetsInclude: ['**/*.woff', '**/*.woff2'],
+  // Enable dependency pre-bundling for faster dev builds
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'zustand'],
+    exclude: ['@anthropic-ai/sdk'] // Exclude large SDKs from pre-bundling
+  },
 })

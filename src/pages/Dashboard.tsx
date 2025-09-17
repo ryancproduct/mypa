@@ -8,10 +8,11 @@ import { ProjectFilter } from '../components/ProjectFilter';
 import { StatusIndicator } from '../components/StatusIndicator';
 import { FloatingActionButton } from '../components/FloatingActionButton';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { ChatInterface } from '../components/ChatInterface';
+import { LazyChatInterface } from '../components/LazyChatInterface';
 import { AdvancedSearch } from '../components/AdvancedSearch';
 import { FileConnection } from '../components/FileConnection';
 import { useNotifications } from '../hooks/useNotifications';
+import { DashboardSkeleton } from '../components/LoadingSkeleton';
 
 import type { Task } from '../types';
 
@@ -60,15 +61,59 @@ const Dashboard: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <DashboardSkeleton />;
   }
 
   if (error) {
-    return <div className="flex justify-center items-center h-screen">Error: {error}</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6">
+        <div className="mypa-card max-w-md w-full p-8 text-center border-l-4 border-red-500">
+          <div className="w-12 h-12 bg-red-100 dark:bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
+            Unable to Load Data
+          </h1>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+            {error}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mypa-button-primary"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!currentSection) {
-    return <div className="flex justify-center items-center h-screen">No data for today.</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6">
+        <div className="mypa-card max-w-md w-full p-8 text-center">
+          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
+            Ready to Start
+          </h1>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+            No tasks for today yet. Start organizing your day by adding your first priority.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mypa-button-secondary"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -233,7 +278,7 @@ const Dashboard: React.FC = () => {
                 Claude
               </span>
             </h3>
-            <ChatInterface />
+            <LazyChatInterface />
           </section>
 
           {/* Follow-ups Section - Supporting Information */}

@@ -4,10 +4,73 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <title>MyPA - Personal Assistant</title>
+
+    <!-- Performance optimizations -->
+    <meta name="theme-color" content="#0ea5e9" />
+    <meta name="description" content="AI-powered personal productivity assistant with smart task management and Claude integration" />
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.anthropic.com" />
+
+    <!-- Critical CSS for above-the-fold content -->
+    <style>
+      /* Inline critical CSS to prevent render blocking */
+      body {
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        background-color: #fcfcfd;
+        color: #111827;
+        line-height: 1.5;
+      }
+
+      .dark body {
+        background-color: #030712;
+        color: #f9fafb;
+      }
+
+      /* Loading spinner for initial load */
+      .app-loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: inherit;
+        z-index: 9999;
+      }
+
+      .app-loading-spinner {
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid #e5e7eb;
+        border-top: 2px solid #0ea5e9;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      .dark .app-loading-spinner {
+        border-color: #374151;
+        border-top-color: #0ea5e9;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Loading spinner shown while React app loads -->
+      <div class="app-loading">
+        <div class="app-loading-spinner"></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

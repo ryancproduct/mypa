@@ -32,14 +32,18 @@ export class AIService {
   constructor(config: AIServiceConfig) {
     this.anthropic = new Anthropic({
       apiKey: config.apiKey,
-      dangerouslyAllowBrowser: true // Note: In production, use a backend proxy
+      // ⚠️ SECURITY WARNING: dangerouslyAllowBrowser should NOT be used in production
+      // This exposes your API key to the client. In production, create a backend API proxy
+      // that handles the Anthropic API calls server-side and returns only the results.
+      dangerouslyAllowBrowser: true // TODO: Remove for production - use backend proxy
     });
   }
 
   reconfigure(apiKey: string) {
     this.anthropic = new Anthropic({
       apiKey,
-      dangerouslyAllowBrowser: true
+      // ⚠️ SECURITY WARNING: This should be handled server-side in production
+      dangerouslyAllowBrowser: true // TODO: Remove for production - use backend proxy
     });
   }
 

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useToast } from './Toast';
 
 interface StatusIndicatorProps {
   isOnline?: boolean;
@@ -6,11 +7,69 @@ interface StatusIndicatorProps {
   className?: string;
 }
 
-export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ 
-  isOnline = navigator.onLine, 
-  syncStatus = 'synced',
-  className = '' 
+// Custom hook for network status and sync monitoring
+export const useNetworkStatus = () => {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('synced');
+  const toast = useToast();
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      setSyncStatus('synced');
+      toast.success('Connection restored', {
+        title: 'Back online',
+        duration: 3000
+      });
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      setSyncStatus('offline');
+      toast.warning('Working offline - changes will sync when reconnected', {
+        title: 'Connection lost',
+        persistent: true
+      });
+    };
+
+    // Simulate sync status changes for demo
+    const simulateSync = () => {
+      if (isOnline && Math.random() > 0.95) {
+        setSyncStatus('syncing');
+        setTimeout(() => {
+          setSyncStatus('synced');
+        }, 1000 + Math.random() * 2000);
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Check sync status periodically
+    const syncInterval = setInterval(simulateSync, 5000);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      clearInterval(syncInterval);
+    };
+  }, [isOnline, toast]);
+
+  return { isOnline, syncStatus, setSyncStatus };
+};
+
+export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
+  isOnline: propIsOnline,
+  syncStatus: propSyncStatus,
+  className = ''
 }) => {
+  // Use hook for automatic status management or fall back to props
+  const { isOnline: hookIsOnline, syncStatus: hookSyncStatus } = propIsOnline !== undefined || propSyncStatus !== undefined
+    ? { isOnline: propIsOnline ?? navigator.onLine, syncStatus: propSyncStatus ?? 'synced' }
+    : useNetworkStatus();
+
+  const isOnline = propIsOnline ?? hookIsOnline;
+  const syncStatus = propSyncStatus ?? hookSyncStatus;
   const getStatusConfig = () => {
     if (!isOnline || syncStatus === 'offline') {
       return {
