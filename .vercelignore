@@ -1,0 +1,22 @@
+# Exclude backend API (deployed separately to Railway)
+api/
+
+# Exclude development files
+dev-dist/
+.env.local
+.env.development
+*.log
+
+# Exclude build artifacts
+node_modules/
+dist/
+.next/
+
+# Exclude git and IDE files
+.git/
+.vscode/
+.idea/
+
+# Exclude documentation
+*.md
+!README.md
