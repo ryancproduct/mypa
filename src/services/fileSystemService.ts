@@ -1,8 +1,11 @@
 // File system service for reading/writing ToDo.md
 // Note: This uses web APIs that require user permission
+// Configured to prioritize local ToDo.md and Instructions.md files
 
 export class FileSystemService {
   private fileHandle: FileSystemFileHandle | null = null;
+  private todoFilePath = '/Users/ryanclement/Desktop/Notes/notes-pwa/ToDo.md';
+  private instructionsFilePath = '/Users/ryanclement/Desktop/Notes/notes-pwa/Instructions.md';
 
   // Request file access using the File System Access API
   async requestFileAccess(): Promise<boolean> {
@@ -55,13 +58,67 @@ export class FileSystemService {
         const file = await this.fileHandle.getFile();
         return await file.text();
       } else {
-        // For development, try to read using fetch (won't work for local files in production)
-        // This is mainly for demonstration - in production, user would need to select the file
-        throw new Error('No file access - please select your ToDo.md file');
+        // Try to read the local file directly (development mode)
+        return await this.readLocalTodoFile();
       }
     } catch (error) {
       console.error('Error reading file:', error);
       throw error;
+    }
+  }
+
+  // Read the local ToDo.md file (development mode)
+  private async readLocalTodoFile(): Promise<string> {
+    try {
+      // In development, try to read the file using Node.js-style require or fetch
+      if (typeof window !== 'undefined') {
+        // Browser environment - try fetch with relative path
+        const response = await fetch('/ToDo.md');
+        if (response.ok) {
+          return await response.text();
+        }
+      }
+
+      // Fallback: return empty template for today's date
+      const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
+      return `# ${today} (Local: Australia/Sydney)
+
+## 📌 Priorities (Top 3 max)
+- [ ]
+
+## 📅 Schedule
+- [ ]
+
+## 🔄 Follow-ups
+- [ ]
+
+## 🧠 Notes & Ideas
+-
+
+## ✅ Completed
+-
+
+## 🧱 Blockers
+- `;
+    } catch (error) {
+      console.error('Could not read local ToDo.md file:', error);
+      throw new Error('No file access - please select your ToDo.md file or place it in the project root');
+    }
+  }
+
+  // Read the Instructions.md file
+  async readInstructionsFile(): Promise<string> {
+    try {
+      if (typeof window !== 'undefined') {
+        const response = await fetch('/Instructions.md');
+        if (response.ok) {
+          return await response.text();
+        }
+      }
+      return 'Instructions file not found';
+    } catch (error) {
+      console.error('Error reading instructions file:', error);
+      return 'Instructions file not accessible';
     }
   }
 

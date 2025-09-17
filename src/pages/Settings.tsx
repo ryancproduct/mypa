@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { AIProviderSettings } from '../components/AIProviderSettings';
+import { InstructionsViewer } from '../components/InstructionsViewer';
+import { useMarkdownStore } from '../stores/useMarkdownStore';
 
 const Settings: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>('general');
+  const { fileConnected, lastSync, connectToFile, loadFromFile } = useMarkdownStore();
 
   const sections = [
     {
@@ -59,6 +62,15 @@ const Settings: React.FC = () => {
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'instructions',
+      name: 'Instructions',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       ),
     },
@@ -190,6 +202,50 @@ const Settings: React.FC = () => {
                 >
                   <Toggle enabled={true} onChange={() => {}} />
                 </SettingItem>
+              </div>
+            </div>
+
+            <div className="mypa-card p-6">
+              <h2 className="mypa-section-header">File Connection</h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between py-4 border-b border-neutral-100 dark:border-neutral-700">
+                  <div className="flex-1 pr-4">
+                    <h3 className="font-medium text-neutral-900 dark:text-neutral-100">ToDo.md Connection</h3>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                      Status: {fileConnected ? 'Connected' : 'Not connected'}
+                      {lastSync && (
+                        <span className="block">Last sync: {new Date(lastSync).toLocaleString()}</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${fileConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    <button
+                      onClick={connectToFile}
+                      className="mypa-button-secondary text-sm"
+                    >
+                      {fileConnected ? 'Reconnect' : 'Connect'}
+                    </button>
+                    {fileConnected && (
+                      <button
+                        onClick={loadFromFile}
+                        className="mypa-button-secondary text-sm"
+                      >
+                        Reload
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-4">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                    Your ToDo.md file is the source of truth for all tasks and data.
+                    The app automatically loads this file on startup and syncs changes.
+                  </p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-2">
+                    <span className="font-medium">File location:</span> /Users/ryanclement/Desktop/Notes/notes-pwa/ToDo.md
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -501,6 +557,13 @@ const Settings: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        );
+
+      case 'instructions':
+        return (
+          <div className="space-y-6">
+            <InstructionsViewer />
           </div>
         );
 

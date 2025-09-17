@@ -34,29 +34,7 @@ interface MarkdownTaskStore extends AppState {
 
 export const useMarkdownStore = create<MarkdownTaskStore>((set, get) => ({
   currentDate: getCurrentDateAustralian(), // Use current date in Australia/Sydney timezone
-  sections: [
-    // Demo section for today to show interface working
-    {
-      id: 'demo-section',
-      date: getCurrentDateAustralian(),
-      priorities: [
-        {
-          id: 'demo-1',
-          content: 'Continue onboarding flow rollout - next batch',
-          status: 'pending',
-          project: '#LoneWorker',
-          dueDate: getCurrentDateAustralian(),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }
-      ],
-      schedule: [],
-      followUps: [],
-      notes: [],
-      completed: [],
-      blockers: [],
-    }
-  ],
+  sections: [], // Will be loaded from ToDo.md automatically
   projects: [
     // Default projects based on your ToDo.md
     { id: '1', name: 'Data Tables', tag: '#DataTables', color: '#0ea5e9' },
@@ -299,3 +277,21 @@ export const useMarkdownStore = create<MarkdownTaskStore>((set, get) => ({
     set({ autoSave: enabled });
   },
 }));
+
+// Initialize the store by automatically loading ToDo.md
+const initializeStore = async () => {
+  try {
+    console.log('Initializing store with ToDo.md...');
+    const store = useMarkdownStore.getState();
+    await store.loadFromFile();
+    console.log('Store initialized successfully');
+  } catch (error) {
+    console.log('Could not auto-load ToDo.md:', error);
+    // Keep default state if file loading fails
+  }
+};
+
+// Auto-initialize when store is created
+if (typeof window !== 'undefined') {
+  initializeStore();
+}
