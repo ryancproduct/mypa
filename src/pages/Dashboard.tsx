@@ -10,7 +10,7 @@ import { FloatingActionButton } from '../components/FloatingActionButton';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { LazyChatInterface } from '../components/LazyChatInterface';
 import { AdvancedSearch } from '../components/AdvancedSearch';
-import { FileConnection } from '../components/FileConnection';
+
 import { useNotifications } from '../hooks/useNotifications';
 import { DashboardSkeleton } from '../components/LoadingSkeleton';
 
@@ -170,8 +170,7 @@ const Dashboard: React.FC = () => {
         />
       )}
 
-      {/* File Connection */}
-      <FileConnection />
+      
 
       {/* HERO SECTION - Today's Priorities (Highest Visual Priority) */}
       <section className="mypa-card animate-slide-up p-8 border-2 border-primary-200 dark:border-primary-800 bg-gradient-to-br from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 shadow-lg mb-8">
