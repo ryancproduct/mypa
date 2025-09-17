@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { AIProviderSettings } from '../components/AIProviderSettings';
 import { InstructionsViewer } from '../components/InstructionsViewer';
+import { PerformanceTest } from '../components/PerformanceTest';
 import { useMarkdownStore } from '../stores/useMarkdownStore';
 
 const Settings: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>('general');
-  const { fileConnected, lastSync, connectToFile, loadFromFile } = useMarkdownStore();
+  const { fileConnected, lastSync, connectToFile, storageMode, setStorageMode, initStorage } = useMarkdownStore();
 
   const sections = [
     {
@@ -17,6 +18,15 @@ const Settings: React.FC = () => {
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'storage',
+      name: 'Storage',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
         </svg>
       ),
     },
@@ -132,6 +142,128 @@ const Settings: React.FC = () => {
 
   const renderSection = () => {
     switch (activeSection) {
+      case 'storage':
+        return (
+          <div className="space-y-6">
+            <div className="mypa-card p-6">
+              <h2 className="mypa-section-header">Storage Mode</h2>
+              <div className="space-y-4">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                  Choose how your tasks and data are stored. Each mode has different performance and sync characteristics.
+                </p>
+                
+                <div className="space-y-3">
+                  <label className="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                    <input
+                      type="radio"
+                      name="storageMode"
+                      value="hybrid"
+                      checked={storageMode === 'hybrid'}
+                      onChange={(e) => setStorageMode(e.target.value as any)}
+                      className="mt-1 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                        Hybrid Mode (Recommended)
+                      </div>
+                      <div className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                        Fast IndexedDB storage with optional ToDo.md sync. Best performance with file compatibility.
+                      </div>
+                      <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                        ✓ Instant UI updates ✓ File sync ✓ Offline support
+                      </div>
+                    </div>
+                  </label>
+
+                  <label className="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                    <input
+                      type="radio"
+                      name="storageMode"
+                      value="file-only"
+                      checked={storageMode === 'file-only'}
+                      onChange={(e) => setStorageMode(e.target.value as any)}
+                      className="mt-1 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                        File Only
+                      </div>
+                      <div className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                        Direct ToDo.md file access. Simple but slower for large files.
+                      </div>
+                      <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                        ✓ Simple ✓ Direct file access ⚠ Slower with large files
+                      </div>
+                    </div>
+                  </label>
+
+                  <label className="flex items-start space-x-3 cursor-pointer p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                    <input
+                      type="radio"
+                      name="storageMode"
+                      value="db-only"
+                      checked={storageMode === 'db-only'}
+                      onChange={(e) => setStorageMode(e.target.value as any)}
+                      className="mt-1 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                        Database Only
+                      </div>
+                      <div className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                        Pure IndexedDB storage. Fastest performance, no file sync.
+                      </div>
+                      <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                        ✓ Fastest ✓ Offline support ⚠ No file sync
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h4 className="font-medium text-blue-800 dark:text-blue-200">Current Mode: {storageMode}</h4>
+                  </div>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    Changes take effect immediately. Your data will be migrated automatically.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mypa-card p-6">
+              <h2 className="mypa-section-header">File Connection</h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between py-4 border-b border-neutral-100 dark:border-neutral-700">
+                  <div className="flex-1 pr-4">
+                    <h3 className="font-medium text-neutral-900 dark:text-neutral-100">ToDo.md Connection</h3>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                      Status: {fileConnected ? 'Connected' : 'Not connected'}
+                      {lastSync && (
+                        <span className="block">Last sync: {new Date(lastSync).toLocaleString()}</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${fileConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    <button
+                      onClick={connectToFile}
+                      className="mypa-button-secondary text-sm"
+                    >
+                      {fileConnected ? 'Reconnect' : 'Connect'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <PerformanceTest />
+          </div>
+        );
+
       case 'general':
         return (
           <div className="space-y-6">
@@ -228,7 +360,7 @@ const Settings: React.FC = () => {
                     </button>
                     {fileConnected && (
                       <button
-                        onClick={loadFromFile}
+                        onClick={() => initStorage()}
                         className="mypa-button-secondary text-sm"
                       >
                         Reload

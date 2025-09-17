@@ -14,6 +14,7 @@ import { LazyChatInterface } from '../components/LazyChatInterface';
 import { AdvancedSearch } from '../components/AdvancedSearch';
 import { DraggableSection } from '../components/DraggableSection';
 import { DashboardCustomizer } from '../components/DashboardCustomizer';
+import { SyncStatusIndicator } from '../components/SyncStatusIndicator';
 
 import { useNotifications } from '../hooks/useNotifications';
 import { DashboardSkeleton } from '../components/LoadingSkeleton';
@@ -356,6 +357,9 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="hidden sm:block">
               <StatusIndicator />
+            </div>
+            <div className="hidden lg:block">
+              <SyncStatusIndicator />
             </div>
             <AdvancedSearch />
             <ThemeToggle />
