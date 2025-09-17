@@ -169,8 +169,8 @@ class AppService {
   }
 
   async showTaskReminder(task: Task): Promise<void> {
+    const title = '📋 Task Reminder';
     const options: ExtendedNotificationOptions = {
-      title: '📋 Task Reminder',
       body: task.content,
       tag: `task-${task.id}`,
       data: { taskId: task.id, type: 'task-reminder' },
@@ -183,7 +183,7 @@ class AppService {
       requireInteraction: true
     };
 
-    await this.showNotification(options.title, options);
+    await this.showNotification(title, options);
   }
 
   async showDailyDigest(tasks: Task[]): Promise<void> {
@@ -202,39 +202,35 @@ class AppService {
     }
 
     const options: ExtendedNotificationOptions = {
-      title: '🌅 Daily Task Digest',
       body: body.trim(),
       tag: 'daily-digest',
       data: { type: 'daily-digest' },
-      actions: [
-        { action: 'open', title: 'Open MyPA' },
-        { action: 'dismiss', title: 'Dismiss' }
-      ],
       icon: '/icon-192x192.svg',
-      badge: '/icon-192x192.svg'
+      badge: '/icon-192x192.svg',
+      requireInteraction: false
     };
 
-    await this.showNotification(options.title, options);
+    await this.showNotification('🌅 Daily Task Digest', options);
   }
 
   async showOverdueAlert(tasks: Task[]): Promise<void> {
     if (tasks.length === 0) return;
 
+    const title = '⚠️ Overdue Tasks Alert';
     const options: ExtendedNotificationOptions = {
-      title: '⚠️ Overdue Tasks Alert',
       body: `You have ${tasks.length} overdue task${tasks.length > 1 ? 's' : ''} that need attention.`,
       tag: 'overdue-alert',
       data: { type: 'overdue-alert', taskIds: tasks.map(t => t.id) },
       actions: [
-        { action: 'review', title: 'Review Tasks' },
-        { action: 'snooze', title: 'Remind Later' }
+        { action: 'view', title: 'View Tasks' },
+        { action: 'dismiss', title: 'Dismiss' }
       ],
       icon: '/icon-192x192.svg',
       badge: '/icon-192x192.svg',
       requireInteraction: true
     };
 
-    await this.showNotification(options.title, options);
+    await this.showNotification(title, options);
   }
 
   scheduleTaskReminder(task: Task): void {

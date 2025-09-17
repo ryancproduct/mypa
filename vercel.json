@@ -1,7 +1,6 @@
 {
   "outputDirectory": "dist",
   "framework": "vite",
-  "cache": false,
   "headers": [
     {
       "source": "/(.*)",

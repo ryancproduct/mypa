@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useMarkdownStore } from '../stores/useMarkdownStore';
 import { appService } from '../services/appService';
 import { isOverdue, isDueToday } from '../utils/dateUtils';
+import type { Task } from '../types/index';
 
 export const useNotifications = () => {
   const { tasks } = useMarkdownStore();
@@ -26,8 +27,7 @@ export const useNotifications = () => {
       // Schedule notifications for due tasks
       pendingTasks.forEach(task => {
         if (task.dueDate) {
-          const dueTime = new Date(task.dueDate + 'T09:00:00'); // Default to 9 AM
-          appService.scheduleTaskReminder(task.id, task.content, dueTime);
+          appService.scheduleTaskReminder(task);
         }
       });
 
@@ -68,9 +68,9 @@ export const useNotifications = () => {
 
   return {
     requestPermission: () => appService.requestNotificationPermission(),
-    scheduleReminder: (taskId: string, title: string, dueTime: Date) => 
-      appService.scheduleTaskReminder(taskId, title, dueTime),
-    showNotification: (title: string, options?: any) => 
+    scheduleReminder: (task: Task) => 
+      appService.scheduleTaskReminder(task),
+    showNotification: (title: string, options?: NotificationOptions) => 
       appService.showNotification(title, options)
   };
 };
