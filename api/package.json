@@ -2,13 +2,12 @@
   "name": "mypa-api",
   "version": "1.0.0",
   "description": "MyPA Backend API - Secure AI proxy service",
-  "main": "dist/simple-server.js",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/simple-server.ts",
-    "build": "tsc -p tsconfig.simple.json",
-    "build:full": "tsc",
-    "start": "node dist/simple-server.js",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "lint": "eslint src --ext .ts",
     "test": "vitest"
   },

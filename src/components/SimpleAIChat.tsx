@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useMarkdownStore } from '../stores/useMarkdownStore';
 import type { Task } from '../types';
 
@@ -21,19 +21,22 @@ export const SimpleAIChat: React.FC<SimpleAIChatProps> = ({ className = '' }) =>
   const [showSetup, setShowSetup] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { addTask, updateTask, tasks, projects, currentDate, getCurrentSection, loading: storeLoading } = useMarkdownStore();
+  const { addTask, updateTask, projects, currentDate, getCurrentSection, loading: storeLoading } = useMarkdownStore();
 
   // Conversation history for context
-  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
+  const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
 
-  // Get current section for today's tasks
+  // Get current section for today's tasks (memoized for performance)
   const currentSection = getCurrentSection();
-  const todaysTasks = currentSection ? [
-    ...currentSection.priorities,
-    ...currentSection.schedule,
-    ...currentSection.followUps,
-    ...currentSection.completed
-  ] : [];
+  const todaysTasks = useMemo(() => {
+    if (!currentSection) return [];
+    return [
+      ...currentSection.priorities,
+      ...currentSection.schedule,
+      ...currentSection.followUps,
+      ...currentSection.completed
+    ];
+  }, [currentSection]);
 
   useEffect(() => {
     // Check for stored API key
@@ -243,8 +246,8 @@ Active Projects:
 Don't make assumptions about task details. Ask for clarification if ambiguous. Always use functions for task operations.`;
   };
 
-  // Task completion by natural language
-  const completeTaskByDescription = async (description: string) => {
+  // Task completion by natural language (memoized for performance)
+  const completeTaskByDescription = useCallback(async (description: string) => {
     const keywords = description.toLowerCase().split(' ');
     const matchingTask = todaysTasks.find(task =>
       keywords.some(keyword =>
@@ -261,10 +264,10 @@ Don't make assumptions about task details. Ask for clarification if ambiguous. A
     } else {
       return `❓ Couldn't find a matching task for "${description}". Could you be more specific?`;
     }
-  };
+  }, [todaysTasks, updateTask]);
 
-  // Get task status with filtering
-  const getTaskStatus = (filter: string) => {
+  // Get task status with filtering (memoized for performance)
+  const getTaskStatus = useCallback((filter: string) => {
     const now = new Date();
     const today = currentDate;
 
@@ -291,7 +294,7 @@ Don't make assumptions about task details. Ask for clarification if ambiguous. A
       default:
         return `📊 Task Summary for ${today}:\n- Total: ${todaysTasks.length}\n- Priorities: ${currentSection?.priorities.length || 0}\n- Schedule: ${currentSection?.schedule.length || 0}\n- Follow-ups: ${currentSection?.followUps.length || 0}\n- Completed: ${currentSection?.completed.length || 0}`;
     }
-  };
+  }, [todaysTasks, currentDate, currentSection]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

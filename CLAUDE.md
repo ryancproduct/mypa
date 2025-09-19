@@ -85,10 +85,11 @@ The app supports two operational modes:
 
 ### Backend API Structure
 
-**Express Server** (`api/src/simple-server.ts`)
+**Express Server** (`api/src/index.ts`)
 - CORS configured for localhost and Vercel deployments
 - JWT-based authentication for API access
 - Proxy endpoints for secure AI provider access
+- Rate limiting and security middleware with Helmet
 
 **AI Proxy Service** (`api/src/services/AIProxyService.ts`)
 - Handles API key management server-side

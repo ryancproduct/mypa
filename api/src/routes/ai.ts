@@ -80,7 +80,7 @@ router.post('/generate', validateRequest(generateResponseSchema), async (req: Au
 });
 
 // POST /api/v1/ai/parse
-router.post('/parse', validateRequest(parseNaturalLanguageSchema), async (req, res, next) => {
+router.post('/parse', validateRequest(parseNaturalLanguageSchema), async (req: AuthenticatedRequest, res, next) => {
   try {
     const { input, provider = 'anthropic' } = req.body;
     
@@ -116,7 +116,7 @@ router.post('/parse', validateRequest(parseNaturalLanguageSchema), async (req, r
 });
 
 // POST /api/v1/ai/command
-router.post('/command', validateRequest(processCommandSchema), async (req, res, next) => {
+router.post('/command', validateRequest(processCommandSchema), async (req: AuthenticatedRequest, res, next) => {
   try {
     const { input, provider = 'anthropic' } = req.body;
     
@@ -152,7 +152,7 @@ router.post('/command', validateRequest(processCommandSchema), async (req, res, 
 });
 
 // POST /api/v1/ai/insights
-router.post('/insights', async (req, res, next) => {
+router.post('/insights', async (req: AuthenticatedRequest, res, next) => {
   try {
     const { provider = 'anthropic' } = req.body;
     
@@ -186,7 +186,7 @@ router.post('/insights', async (req, res, next) => {
 });
 
 // GET /api/v1/ai/providers
-router.get('/providers', async (req, res, next) => {
+router.get('/providers', async (req: AuthenticatedRequest, res, next) => {
   try {
     const providers = await aiProxy.getAvailableProviders();
     
@@ -203,7 +203,7 @@ router.get('/providers', async (req, res, next) => {
 });
 
 // GET /api/v1/ai/health/:provider
-router.get('/health/:provider', async (req, res, next) => {
+router.get('/health/:provider', async (req: AuthenticatedRequest, res, next) => {
   try {
     const { provider } = req.params;
     

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import Tasks from './pages/Tasks';
+import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import { SideNavigation } from './components/SideNavigation';
 import { PWAPrompt } from './components/PWAPrompt';
@@ -46,7 +46,7 @@ function App() {
               >
                 <Routes>
                   <Route path="/" element={<Home />} />
-                  <Route path="/tasks" element={<Tasks />} />
+                  <Route path="/tasks" element={<Dashboard />} />
                   <Route path="/settings" element={<Settings />} />
                 </Routes>
               </ErrorBoundary>

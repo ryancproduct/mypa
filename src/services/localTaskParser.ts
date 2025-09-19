@@ -52,7 +52,7 @@ export class LocalTaskParser {
 
   private parseTaskCreation(input: string): AIResponse {
     // Extract task content
-    let content = this.extractTaskContent(input);
+    const content = this.extractTaskContent(input);
 
     // Determine section type
     const sectionType = this.determineSectionType(input);

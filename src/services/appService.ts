@@ -289,7 +289,7 @@ class AppService {
     scheduleNext();
   }
 
-  handleNotificationClick(event: any): void {
+  handleNotificationClick(event: NotificationEvent): void {
     const data = event.notification.data;
     
     switch (data?.type) {
@@ -309,7 +309,7 @@ class AppService {
     event.notification.close();
   }
 
-  handleNotificationAction(event: any, action: string): void {
+  handleNotificationAction(event: NotificationEvent, action: string): void {
     const data = event.notification.data;
     
     switch (action) {

@@ -80,46 +80,13 @@ export const TaskSectionSkeleton: React.FC<{ itemCount?: number; showHeader?: bo
   </div>
 );
 
-// Chat Message Skeleton
-export const ChatMessageSkeleton: React.FC<{ isUser?: boolean }> = ({ isUser = false }) => (
-  <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-pulse`}>
-    <div className={`max-w-[80%] rounded-lg px-3 py-2 ${
-      isUser
-        ? 'bg-neutral-300 dark:bg-neutral-600'
-        : 'bg-neutral-200 dark:bg-neutral-700'
-    }`}>
-      <Skeleton height="0.875rem" width={isUser ? "100px" : "180px"} className="mb-1" />
-      <Skeleton height="0.75rem" width="60px" />
-    </div>
-  </div>
-);
-
-// Chat Interface Skeleton
+// Generic AI Interface Skeleton (simplified from removed chat components)
 export const ChatInterfaceSkeleton: React.FC = () => (
-  <div className="mypa-card flex flex-col h-96">
-    {/* Header */}
-    <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-700">
-      <div className="flex items-center gap-2 animate-pulse">
-        <Skeleton variant="circular" width="2rem" height="2rem" />
-        <Skeleton height="1rem" width="80px" />
-        <Skeleton variant="circular" width="0.5rem" height="0.5rem" />
-      </div>
-      <Skeleton height="1rem" width="1rem" />
-    </div>
-
-    {/* Messages */}
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-      <ChatMessageSkeleton />
-      <ChatMessageSkeleton isUser />
-      <ChatMessageSkeleton />
-    </div>
-
-    {/* Input */}
-    <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
-      <div className="flex gap-2 animate-pulse">
-        <Skeleton height="2.5rem" className="flex-1" />
-        <Skeleton width="2.5rem" height="2.5rem" variant="rectangular" />
-      </div>
+  <div className="mypa-card p-4">
+    <div className="space-y-3 animate-pulse">
+      <Skeleton height="1rem" width="60%" />
+      <Skeleton height="2rem" width="100%" />
+      <Skeleton height="1rem" width="40%" />
     </div>
   </div>
 );
